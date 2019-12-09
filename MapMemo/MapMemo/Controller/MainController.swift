@@ -12,7 +12,10 @@ class MainController: UIViewController {
     
     let addReminderController = AddReminderController()
     let editReminderController = EditReminderController()
-    let activeReminderController = ActiveRemindersController() 
+    let activeReminderController = ActiveRemindersController()
+    
+//    let appDelegate = UIApplication.shared.delegate as? AppDelegate
+    let notificationManager = LocationNotificationManager.shared//.notificationCenter
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -67,8 +70,6 @@ class MainController: UIViewController {
     @objc private func presentActiveRemindersController(sender: UIBarButtonItem) {
         print("Presenting ActiveRemindersController")
         navigationController?.pushViewController(activeReminderController, animated: true)
-
     }
-
 }
 

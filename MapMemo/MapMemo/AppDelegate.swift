@@ -8,15 +8,30 @@
 
 import UIKit
 import CoreData
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+//    let localNotificationCenter = UNUserNotificationCenter.current()
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        let notifications = LocationNotificationManager.shared
+        notifications.notificationCenter.delegate = notifications
+        notifications.requestNotificationAuthorization()
+    
+//        notifications.notificationCenter.delegate = notifications
+        
+//        localNotificationCenter.delegate = self
+        
         let navigationBarAppearance = UINavigationBar.appearance()
+        
+//        requestAuthorization()
+        
+//        createLocalNotification(notificationType: "Whatever")
 
         navigationBarAppearance.barTintColor = ColorSet.objectColor // Bar background color
         navigationBarAppearance.tintColor = ColorSet.tintColor // Tintcolor text and icons
@@ -27,6 +42,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = UINavigationController(rootViewController: MainController())
         
         return true
+    }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // This sets the badge number to 0
+        UIApplication.shared.applicationIconBadgeNumber = 0
     }
 
     // MARK: UISceneSession Lifecycle
@@ -87,6 +107,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
 }
-

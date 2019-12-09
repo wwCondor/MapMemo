@@ -13,6 +13,7 @@ struct MapMemoStub {
     var mapMemoMessage: String
     var mapMemoLocation: StubCoordinate
     var mapMemoTrigger: ReminderTriggerOption
+    var mapMemoIsActive: Bool // Reminders become reusable as user can re-activate reminder after use
 }
 
 struct StubCoordinate {
