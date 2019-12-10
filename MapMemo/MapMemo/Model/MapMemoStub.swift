@@ -6,17 +6,46 @@
 //  Copyright © 2019 Studio Willebrands. All rights reserved.
 //
 
-import Foundation
+import CoreLocation
 
 struct MapMemoStub {
-    var mapMemoName: String
-    var mapMemoMessage: String
-    var mapMemoLocation: StubCoordinate
-    var mapMemoTrigger: ReminderTriggerOption
-    var mapMemoIsActive: Bool // Reminders become reusable as user can re-activate reminder after use
+    let title: String
+    let body: String
+    let coordinate: Coordinate
+    var radius: Int
+    var trigger: RegionTrigger
+    let locationId: String
+    var iIsActive: Bool // Reminders become reusable as user can re-activate reminder after use
 }
 
-struct StubCoordinate {
+struct Coordinate {
     var longitude: Double
     var lattitude: Double
 }
+
+enum RegionTrigger {
+    case whenEnteringRegion
+    case whenLeavingRegion
+    case whenEnteringAndLeavingRegion
+}
+
+enum BorderColor {
+    case blue
+    case black
+    case red
+    case yellow
+    case green
+    
+    var name: String {
+        switch self {
+        case .blue:   return "BlueBorder"
+        case .black:  return "BlackBorder"
+        case .red:    return "RedBorder"
+        case .yellow: return "YellowBorder"
+        case .green:  return "GreenBorder"
+        }
+    }
+}
+
+
+
