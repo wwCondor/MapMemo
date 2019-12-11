@@ -26,15 +26,14 @@ class AddReminderController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = ColorSet.appBackgroundColor
+//        view.backgroundColor = ColorSet.appBackgroundColor
+        view.backgroundColor = UIColor.systemBlue
         
         setupView()
         setupNavigationBar()
     }
     
     private func setupView() {
-        view.addSubview(saveButton)
-        
         NSLayoutConstraint.activate([
             saveButton.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
             saveButton.widthAnchor.constraint(equalToConstant: view.bounds.width),

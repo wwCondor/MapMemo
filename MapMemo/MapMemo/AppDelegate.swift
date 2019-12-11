@@ -19,7 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        let notifications = LocationNotificationManager.shared
+        let notifications = NotificationManager.shared
         notifications.notificationCenter.delegate = notifications
         notifications.requestNotificationAuthorization()
     

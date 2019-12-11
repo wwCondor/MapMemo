@@ -51,3 +51,10 @@ extension UIViewController {
         viewController.present(actionSheet, animated: true, completion: nil)
     }
 }
+
+extension Double {
+    // Converts to radians. Used for compass image rotation
+    var toRadians: CGFloat { return CGFloat(self * .pi / 180) }
+//    var toDegrees: CGFloat { return CGFloat(self * 180 / .pi) }
+}
+

@@ -9,24 +9,22 @@
 import CoreLocation
 import UserNotifications
 
-final class LocationNotificationManager: NSObject {
+final class NotificationManager: NSObject {
     
     override init() {
         super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+
     }
     
     var notificationAuthorizationApproved: Bool = false
     var locationAuthorizationApproved: Bool = false
     
-    private let locationManager = CLLocationManager()
     
-    static let shared = LocationNotificationManager()
+    static let shared = NotificationManager()
     
     let notificationCenter = UNUserNotificationCenter.current()
     
-    func createLocalNotification(notificationInfo: MapMemoStub) { //}(notificationType: String) {
+    func createLocalNotification(notificationInfo: MapMemoStub) {
         let content = UNMutableNotificationContent()
         
         let userActions = "User Actions"
@@ -46,12 +44,12 @@ final class LocationNotificationManager: NSObject {
         //        content.
         //        UNNotificationRequest.localNotification
         
-        let ignoreAction = UNNotificationAction(identifier: "Snooze", title: "Snooze", options: [])
+        let snoozeAction = UNNotificationAction(identifier: "Snooze", title: "Snooze", options: [])
         let showMapAction = UNNotificationAction(identifier: "ShowReminder", title: "Show Reminder", options: [.foreground])
         
         //        let trigger = UNLocationNotificationTrigger(triggerWithRegion: region, repeats: false)
         
-        let category = UNNotificationCategory(identifier: userActions, actions: [ignoreAction, showMapAction], intentIdentifiers: [], options: [])
+        let category = UNNotificationCategory(identifier: userActions, actions: [snoozeAction, showMapAction], intentIdentifiers: [], options: [])
         
         notificationCenter.setNotificationCategories([category])
     }
@@ -80,8 +78,8 @@ final class LocationNotificationManager: NSObject {
 
 }
 
-// MARK: NotificationCenterDelegate
-extension LocationNotificationManager: UNUserNotificationCenterDelegate {
+// MARK: Notification Center Delegate
+extension NotificationManager: UNUserNotificationCenterDelegate {
     
         // Request Authorization
         func requestNotificationAuthorization() {
@@ -112,11 +110,6 @@ extension LocationNotificationManager: UNUserNotificationCenterDelegate {
                 }
             }
         }
-        
-
-    
-    
-    
     
     // Enables notifications even if application is in foreground
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -141,62 +134,5 @@ extension LocationNotificationManager: UNUserNotificationCenterDelegate {
             print("Handling notifications with the local notificaiton identifier")
         }
         completionHandler()
-    }
-}
-
-
-extension LocationNotificationManager: CLLocationManagerDelegate {
-    func requestLocationAuthorization() {
-        let authorizationStatus = CLLocationManager.authorizationStatus()
-
-        switch authorizationStatus {
-        case .notDetermined:
-            // MARK: Request Location Authorization
-            locationManager.requestWhenInUseAuthorization()
-            return
-        case .denied, .restricted:
-            // when denied we should uppdate UI to give easy access to settings with shortcut
-            return
-        case .authorizedAlways, .authorizedWhenInUse:
-            return
-        @unknown default:
-            break
-        }
-    }
-    
-    
-    
-    func requestLocation() {
-//        let connectionAvailable = Reachability.checkReachable()
-//        if connectionAvailable == true {
-//            locationManager.requestLocation()
-//        } else if connectionAvailable == false {
-//            locationLabel.text = "There is no internet connection. Reconnect, close tab and try again."
-//        }
-    }
-    
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        // Gets called when status changes
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        // Do something when user enters region
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        // Do something when user leaves region
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        // informs delegate one or more beacons are in ranges
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Informs delegate new location data is available
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
-        // Informs delegate that a beacon satisfying the constraints has been
     }
 }

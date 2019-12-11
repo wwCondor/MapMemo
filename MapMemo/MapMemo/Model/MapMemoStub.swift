@@ -29,7 +29,7 @@ enum RegionTrigger {
     case whenEnteringAndLeavingRegion
 }
 
-enum BorderColor {
+enum RegionBorderColor {
     case blue
     case black
     case red
