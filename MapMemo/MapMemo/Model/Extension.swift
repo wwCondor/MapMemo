@@ -44,7 +44,7 @@ extension UIViewController {
             }
         }))
         
-        actionSheet.addAction(UIAlertAction(title: "Thanks, I'll go to settings later", style: .cancel, handler: { (action) in
+        actionSheet.addAction(UIAlertAction(title: "Thanks, but I'll go to settings later", style: .cancel, handler: { (action) in
             
         }))
         
@@ -58,3 +58,13 @@ extension Double {
 //    var toDegrees: CGFloat { return CGFloat(self * 180 / .pi) }
 }
 
+extension UIImage {
+    // Used set alpha on images for mainController
+    func alpha(_ value: CGFloat) -> UIImage {
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
+        draw(at: CGPoint.zero, blendMode: .normal, alpha: value)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage!
+    }
+}

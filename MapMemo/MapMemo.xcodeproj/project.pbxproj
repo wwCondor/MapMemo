@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B11C07923A12D5400E81DAA /* ModeSelected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C07823A12D5400E81DAA /* ModeSelected.swift */; };
 		0BA9CF02239E501700ACB8E3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF01239E501700ACB8E3 /* AppDelegate.swift */; };
 		0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF03239E501700ACB8E3 /* SceneDelegate.swift */; };
 		0BA9CF06239E501700ACB8E3 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF05239E501700ACB8E3 /* MainController.swift */; };
@@ -18,18 +19,18 @@
 		0BA9CF20239E6E9000ACB8E3 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF1F239E6E8F00ACB8E3 /* Color.swift */; };
 		0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF21239E6E9800ACB8E3 /* Icon.swift */; };
 		0BA9CF24239E718D00ACB8E3 /* AddReminderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF23239E718D00ACB8E3 /* AddReminderController.swift */; };
-		0BA9CF26239E719B00ACB8E3 /* EditReminderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF25239E719B00ACB8E3 /* EditReminderController.swift */; };
+		0BA9CF26239E719B00ACB8E3 /* ReminderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */; };
 		0BA9CF28239E71BE00ACB8E3 /* ActiveRemindersController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF27239E71BE00ACB8E3 /* ActiveRemindersController.swift */; };
 		0BA9CF2A239E723500ACB8E3 /* InfoDisplayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF29239E723500ACB8E3 /* InfoDisplayManager.swift */; };
 		0BA9CF2C239E738100ACB8E3 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF2B239E738100ACB8E3 /* CustomButton.swift */; };
 		0BA9CF2E239E754B00ACB8E3 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF2D239E754B00ACB8E3 /* Constant.swift */; };
 		0BA9CF31239ED06900ACB8E3 /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */; };
-		0BA9CF33239EDEEE00ACB8E3 /* LocationNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF32239EDEEE00ACB8E3 /* LocationNotificationManager.swift */; };
 		0BA9CF35239FBCA900ACB8E3 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF34239FBCA900ACB8E3 /* Error.swift */; };
 		0BA9CF37239FBE0200ACB8E3 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF36239FBE0200ACB8E3 /* Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0B11C07823A12D5400E81DAA /* ModeSelected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeSelected.swift; sourceTree = "<group>"; };
 		0BA9CEFE239E501700ACB8E3 /* MapMemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapMemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BA9CF01239E501700ACB8E3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BA9CF03239E501700ACB8E3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -43,13 +44,12 @@
 		0BA9CF1F239E6E8F00ACB8E3 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		0BA9CF21239E6E9800ACB8E3 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
 		0BA9CF23239E718D00ACB8E3 /* AddReminderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddReminderController.swift; sourceTree = "<group>"; };
-		0BA9CF25239E719B00ACB8E3 /* EditReminderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditReminderController.swift; sourceTree = "<group>"; };
+		0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderController.swift; sourceTree = "<group>"; };
 		0BA9CF27239E71BE00ACB8E3 /* ActiveRemindersController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveRemindersController.swift; sourceTree = "<group>"; };
 		0BA9CF29239E723500ACB8E3 /* InfoDisplayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoDisplayManager.swift; sourceTree = "<group>"; };
 		0BA9CF2B239E738100ACB8E3 /* CustomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		0BA9CF2D239E754B00ACB8E3 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
-		0BA9CF32239EDEEE00ACB8E3 /* LocationNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNotificationManager.swift; sourceTree = "<group>"; };
 		0BA9CF34239FBCA900ACB8E3 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		0BA9CF36239FBE0200ACB8E3 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -103,8 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				0BA9CF05239E501700ACB8E3 /* MainController.swift */,
-				0BA9CF23239E718D00ACB8E3 /* AddReminderController.swift */,
-				0BA9CF25239E719B00ACB8E3 /* EditReminderController.swift */,
+				0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */,
 				0BA9CF27239E71BE00ACB8E3 /* ActiveRemindersController.swift */,
 				0BA9CF29239E723500ACB8E3 /* InfoDisplayManager.swift */,
 				0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */,
@@ -129,6 +128,7 @@
 				0BA9CF2D239E754B00ACB8E3 /* Constant.swift */,
 				0BA9CF34239FBCA900ACB8E3 /* Error.swift */,
 				0BA9CF36239FBE0200ACB8E3 /* Extension.swift */,
+				0B11C07823A12D5400E81DAA /* ModeSelected.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -136,7 +136,7 @@
 		0BA9CF2F239E775C00ACB8E3 /* Delete */ = {
 			isa = PBXGroup;
 			children = (
-				0BA9CF32239EDEEE00ACB8E3 /* LocationNotificationManager.swift */,
+				0BA9CF23239E718D00ACB8E3 /* AddReminderController.swift */,
 			);
 			path = Delete;
 			sourceTree = "<group>";
@@ -214,10 +214,9 @@
 			files = (
 				0BA9CF2C239E738100ACB8E3 /* CustomButton.swift in Sources */,
 				0BA9CF0C239E501700ACB8E3 /* MapMemo.xcdatamodeld in Sources */,
-				0BA9CF26239E719B00ACB8E3 /* EditReminderController.swift in Sources */,
+				0BA9CF26239E719B00ACB8E3 /* ReminderController.swift in Sources */,
 				0BA9CF06239E501700ACB8E3 /* MainController.swift in Sources */,
 				0BA9CF20239E6E9000ACB8E3 /* Color.swift in Sources */,
-				0BA9CF33239EDEEE00ACB8E3 /* LocationNotificationManager.swift in Sources */,
 				0BA9CF2A239E723500ACB8E3 /* InfoDisplayManager.swift in Sources */,
 				0BA9CF28239E71BE00ACB8E3 /* ActiveRemindersController.swift in Sources */,
 				0BA9CF2E239E754B00ACB8E3 /* Constant.swift in Sources */,
@@ -229,6 +228,7 @@
 				0BA9CF1C239E6BA100ACB8E3 /* MapMemoStub.swift in Sources */,
 				0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */,
 				0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */,
+				0B11C07923A12D5400E81DAA /* ModeSelected.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

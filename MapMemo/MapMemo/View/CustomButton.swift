@@ -26,5 +26,13 @@ class CustomButton: UIButton {
         imageView?.contentMode = .scaleAspectFit
         translatesAutoresizingMaskIntoConstraints = false
     }
+    
+    func additionalSetup() {
+        backgroundColor?.withAlphaComponent(0.9)
+    }
+}
+
+class AddButton: CustomButton {
+    
 }
 

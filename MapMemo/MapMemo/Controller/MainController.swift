@@ -11,13 +11,15 @@ import MapKit
 
 class MainController: UIViewController {
     
-    let addReminderController = AddReminderController()
-    let editReminderController = EditReminderController()
+//    let addReminderController = AddReminderController()
+    let reminderController = ReminderController()
     let activeReminderController = ActiveRemindersController()
     
     private let locationManager = CLLocationManager()
     
     var lastLocation: CLLocation?
+    
+    let regionInMeters: Double = 5000
 
 //    let appDelegate = UIApplication.shared.delegate as? AppDelegate
     let notificationManager = NotificationManager.shared//.notificationCenter
@@ -56,8 +58,12 @@ class MainController: UIViewController {
     
     lazy var addButton: CustomButton = {
         let addButton = CustomButton(type: .custom)
-        let image = UIImage(named: Icon.addIcon.name)?.withRenderingMode(.alwaysTemplate)
+        addButton.alpha = 0.85
+        let image = UIImage(named: Icon.addIcon.name)?.withRenderingMode(.alwaysTemplate)//.alpha(1.0)
+//        addButton.tintColor = ColorSet.tintColor
+//        addButton.backgroundColor?.withAlphaComponent(0.9)
         addButton.setImage(image, for: .normal)
+
         let inset: CGFloat = 15
         addButton.imageEdgeInsets = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
         addButton.addTarget(self, action: #selector(presentReminderController(sender:)), for: .touchUpInside)
@@ -77,23 +83,34 @@ class MainController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        updateSettingsShortcutAccess()
-
-        locationManager.startUpdatingHeading()
-        locationManager.startUpdatingLocation()
+        memoMap.delegate = self
         
         view.backgroundColor = ColorSet.appBackgroundColor
-        
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        
+    
         setupView()
         setupNavigationBar()
+        checkLocationServices()
     }
     
+    // MARK: Bubbles
+    private func setupAmsterdamBubble() {
+        let amsterdam = MKPointAnnotation()
+        amsterdam.title = "Amsterdam"
+        amsterdam.coordinate = CLLocationCoordinate2D(latitude: 52.3746569, longitude: 4.8903169)
+//        memoMap.addAnnotation(amsterdam)
+        addCircleAroundLocation(coordinate: amsterdam.coordinate, radius: 5000, map: memoMap)
+    }
+    
+    func addCircleAroundLocation(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+        let circle = MKCircle(center: coordinate, radius: radius)
+        map.addOverlay(circle)
+    }
+    
+
+    
     private func setupView() {
-        view.addSubview(addButton)
         view.addSubview(memoMap)
+        view.addSubview(addButton)
         view.addSubview(compass)
         view.addSubview(settingsShortcut)
         
@@ -107,7 +124,7 @@ class MainController: UIViewController {
             memoMap.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             memoMap.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             memoMap.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            memoMap.bottomAnchor.constraint(equalTo: addButton.topAnchor),
+            memoMap.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             compass.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: offset),
             compass.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: offset),
@@ -125,6 +142,14 @@ class MainController: UIViewController {
         self.navigationItem.setHidesBackButton(true, animated: true)
         let activeRemindersBarButton = UIBarButtonItem(customView: activeRemindersButton)
         self.navigationItem.leftBarButtonItem = activeRemindersBarButton
+    }
+    
+    private func setupLocationManager() {
+        locationManager.delegate = self
+//        locationManager.requestWhenInUseAuthorization()
+//        locationManager.startUpdatingLocation()
+        locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+        locationManager.distanceFilter = 25
     }
     
     // MARK: Needs testing
@@ -146,15 +171,63 @@ class MainController: UIViewController {
                            options: .curveEaseIn,
                            animations: { self.settingsShortcut.alpha = 0 },
                            completion: { _ in
-                            self.addButton.isEnabled = false
-                            self.activeRemindersButton.isEnabled = false
+                            self.addButton.isEnabled = true
+                            self.activeRemindersButton.isEnabled = true
             })
         }
     }
     
+    private func checkLocationServices() {
+        print("Checking Location Servives")
+        if CLLocationManager.locationServicesEnabled() {
+            print("Location Services are Enabled")
+            setupLocationManager()
+            checkLocationAuthorization()
+        } else {
+            print("Location Services are Disabled")
+            presentFailedPermissionActionSheet(description: AuthorizationError.locationServicesDisabled.localizedDescription , viewController: self)
+        }
+    }
+    
+    private func checkLocationAuthorization() {
+        print("Checking Location Authorization")
+        switch CLLocationManager.authorizationStatus() {
+            
+        case .notDetermined:
+            print("Requesting Authorization")
+            locationManager.requestWhenInUseAuthorization()
+        case .restricted, .denied:
+            notificationManager.locationAuthorizationApproved = false
+            print("Authorization restricted or denied")
+            presentFailedPermissionActionSheet(description: AuthorizationError.locationAuthorizationDenied.localizedDescription , viewController: self)
+        case .authorizedAlways, .authorizedWhenInUse:
+            // MARK: Do Map Stuff
+            notificationManager.locationAuthorizationApproved = true
+            print("Authorized")
+            memoMap.showsUserLocation = true
+            centerMapOnUserLocation()
+            locationManager.startUpdatingLocation()
+            locationManager.startUpdatingHeading()
+            // MARK: Setup Annotations
+            setupAmsterdamBubble()
+            break
+        @unknown default:
+            break
+        }
+        updateSettingsShortcutAccess()
+    }
+    
+    private func centerMapOnUserLocation() {
+        if let location = locationManager.location?.coordinate {
+            let region = MKCoordinateRegion.init(center: location, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+            memoMap.setRegion(region, animated: true)
+        }
+    }
+    
     @objc func presentReminderController(sender: Any?) {
+        reminderController.modeSelected = .addReminderMode
         print("Launching ReminderController")
-        navigationController?.pushViewController(addReminderController, animated: true)
+        navigationController?.pushViewController(reminderController, animated: true)
     }
 
     @objc private func presentActiveRemindersController(sender: UIBarButtonItem) {
@@ -175,16 +248,16 @@ class MainController: UIViewController {
     var reminders: [MapMemoStub] = []
     
     func addReminders() {
-        reminders.append(MapMemoStub.init(title: "First Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 10, trigger: .whenEnteringRegion, locationId: "LocationId1", iIsActive: false))
-        reminders.append(MapMemoStub.init(title: "Second Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 20, trigger: .whenEnteringRegion, locationId: "LocationId2", iIsActive: true))
-        reminders.append(MapMemoStub.init(title: "Third Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 30, trigger: .whenEnteringRegion, locationId: "LocationId3", iIsActive: false))
-        reminders.append(MapMemoStub.init(title: "Fourth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 40, trigger: .whenEnteringRegion, locationId: "LocationId4", iIsActive: true))
-        reminders.append(MapMemoStub.init(title: "Fifth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 50, trigger: .whenEnteringRegion, locationId: "LocationId5", iIsActive: false))
-        reminders.append(MapMemoStub.init(title: "Sixth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 60, trigger: .whenEnteringRegion, locationId: "LocationId6", iIsActive: true))
-        reminders.append(MapMemoStub.init(title: "Seventh Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 70, trigger: .whenEnteringRegion, locationId: "LocationId7", iIsActive: false))
-        reminders.append(MapMemoStub.init(title: "Eigth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 80, trigger: .whenEnteringRegion, locationId: "LocationId8", iIsActive: true))
-        reminders.append(MapMemoStub.init(title: "Ninth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 90, trigger: .whenEnteringRegion, locationId: "LocationId9", iIsActive: false))
-        reminders.append(MapMemoStub.init(title: "Tenth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 100, trigger: .whenEnteringRegion, locationId: "LocationId0", iIsActive: true))
+        reminders.append(MapMemoStub.init(title: "First Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 10, trigger: .whenEnteringRegion, locationId: "LocationId1", iIsActive: false, regionBorderColor: .black))
+        reminders.append(MapMemoStub.init(title: "Second Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 20, trigger: .whenEnteringRegion, locationId: "LocationId2", iIsActive: true, regionBorderColor: .blue))
+        reminders.append(MapMemoStub.init(title: "Third Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 30, trigger: .whenEnteringRegion, locationId: "LocationId3", iIsActive: false, regionBorderColor: .green))
+        reminders.append(MapMemoStub.init(title: "Fourth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 40, trigger: .whenEnteringRegion, locationId: "LocationId4", iIsActive: true, regionBorderColor: .red))
+        reminders.append(MapMemoStub.init(title: "Fifth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 50, trigger: .whenEnteringRegion, locationId: "LocationId5", iIsActive: false, regionBorderColor: .yellow))
+        reminders.append(MapMemoStub.init(title: "Sixth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 60, trigger: .whenEnteringRegion, locationId: "LocationId6", iIsActive: true, regionBorderColor: .black))
+        reminders.append(MapMemoStub.init(title: "Seventh Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 70, trigger: .whenEnteringRegion, locationId: "LocationId7", iIsActive: false, regionBorderColor: .blue))
+        reminders.append(MapMemoStub.init(title: "Eigth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 80, trigger: .whenEnteringRegion, locationId: "LocationId8", iIsActive: true, regionBorderColor: .green))
+        reminders.append(MapMemoStub.init(title: "Ninth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 90, trigger: .whenEnteringRegion, locationId: "LocationId9", iIsActive: false, regionBorderColor: .red))
+        reminders.append(MapMemoStub.init(title: "Tenth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 100, trigger: .whenEnteringRegion, locationId: "LocationId0", iIsActive: true, regionBorderColor: .yellow))
     }
 }
 
@@ -199,64 +272,26 @@ extension MainController: CLLocationManagerDelegate {
         }
     }
     
-    // Informs delegate new location data is available
+    // Informs delegate new location data is available and updates map
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let currentLocation = locations.last else { return }
-        lastLocation = currentLocation
+        let center = CLLocationCoordinate2D(latitude: currentLocation.coordinate.latitude, longitude: currentLocation.coordinate.longitude)
+        let region = MKCoordinateRegion.init(center: center, latitudinalMeters: regionInMeters, longitudinalMeters: regionInMeters)
+        memoMap.setRegion(region, animated: true)
     }
     
-    func requestLocationAuthorization() {
-        let authorizationStatus = CLLocationManager.authorizationStatus()
-
-        switch authorizationStatus {
-        case .notDetermined:
-            // MARK: Request Location Authorization
-            locationManager.requestWhenInUseAuthorization()
-            return
-        case .denied, .restricted:
-            // when denied we should uppdate UI to give easy access to settings with shortcut
-            return
-        case .authorizedAlways, .authorizedWhenInUse:
-            return
-        @unknown default:
-            break
-        }
-    }
-    
+    // Gets called when authorization status changes
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        notificationManager.locationAuthorizationApproved = false
-        // Gets called when status changes
-        switch status {
-        case .notDetermined:
-            locationManager.requestWhenInUseAuthorization()
-        case .restricted, .denied:
-            notificationManager.locationAuthorizationApproved = false
-            updateSettingsShortcutAccess()
-            // MARK: Show settings shortcut
-        case .authorizedAlways, .authorizedWhenInUse:
-            notificationManager.locationAuthorizationApproved = true
-            updateSettingsShortcutAccess()
-        @unknown default:
-            fatalError("Fatal Error. An unknown location authorization error has occurred")
-        }
+        checkLocationAuthorization()
     }
     
-    
-    // MARK: Code below not used yet
-    func requestLocation() {
-//        let connectionAvailable = Reachability.checkReachable()
-//        if connectionAvailable == true {
-//            locationManager.requestLocation()
-//        } else if connectionAvailable == false {
-//            locationLabel.text = "There is no internet connection. Reconnect, close tab and try again."
-//        }
+    // MARK: Add Annotations
+    func setLocationTriggerRegion() {
+        
     }
-    
-    
-    
-    
 
     
+    // MARK: Use?
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         // Do something when user enters region
     }
@@ -276,3 +311,34 @@ extension MainController: CLLocationManagerDelegate {
     }
 }
 
+// MARK: Annotations
+extension MainController: MKMapViewDelegate {
+    // This handles the pins around a location
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        guard annotation is MKPointAnnotation else { return nil }
+        
+        let identifier = "Annotation"
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+        
+        if annotationView == nil {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+        } else {
+            annotationView?.annotation = annotation
+        }
+        
+        return annotationView
+    }
+    
+    // This handle the drawing of a circle around the location
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        if overlay is MKCircle {
+            let circle = MKCircleRenderer(overlay: overlay)
+            circle.strokeColor = UIColor.red
+            circle.fillColor = UIColor.red.withAlphaComponent(0.2)
+            circle.lineWidth = 2
+            return circle
+        } else {
+            return MKPolylineRenderer()
+        }
+    }
+}
