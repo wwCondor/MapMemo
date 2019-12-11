@@ -12,11 +12,13 @@ struct MapMemoStub {
     let title: String
     let body: String
     let coordinate: Coordinate
+//    let coordinateLongitude: Double
+//    let coordinateLatitude: Double
     var radius: Int
-    var trigger: RegionTrigger
+    var triggerWhenEntering: Bool // if false it will trigger when leaving instead
     let locationId: String
     var iIsActive: Bool // Reminders become reusable as user can re-activate reminder after use
-    var regionBorderColor: RegionBorderColor
+    var regionBorderColor: String
 }
 
 struct Coordinate {
@@ -24,20 +26,20 @@ struct Coordinate {
     var lattitude: Double
 }
 
-enum RegionTrigger {
-    case whenEnteringRegion
-    case whenLeavingRegion
-    case whenEnteringAndLeavingRegion
-}
+//enum RegionTrigger {
+//    case whenEnteringRegion
+//    case whenLeavingRegion
+//    case whenEnteringAndLeavingRegion
+//}
 
-enum RegionBorderColor {
+enum BubbleColor {
     case blue
     case black
     case red
     case yellow
     case green
     
-    var name: String {
+    var string: String {
         switch self {
         case .blue:   return "BlueBorder"
         case .black:  return "BlackBorder"

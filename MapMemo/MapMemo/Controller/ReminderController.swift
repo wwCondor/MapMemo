@@ -48,26 +48,33 @@ class ReminderController: UIViewController {
         
         if modeSelected == .addReminderMode {
             view.backgroundColor = ColorSet.appBackgroundColor
-            setupViewForAddMode()
             setupNavigationBarForAddMode()
         } else if modeSelected == .editReminderMode {
             view.backgroundColor = UIColor.systemRed
-            setupViewForEditMode()
             setupNavigationBarForEditMode()
         }
+        setupView()
     }
     
-    private func setupViewForEditMode() {
+    private func setupView() {
         view.addSubview(saveButton)
-
-        NSLayoutConstraint.activate([
-            backButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
-            deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
-            
-            saveButton.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
-            saveButton.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
+        
+        if modeSelected == .addReminderMode {
+            NSLayoutConstraint.activate([
+                saveButton.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
+                saveButton.widthAnchor.constraint(equalToConstant: view.bounds.width),
+                saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            ])
+        } else if modeSelected == .editReminderMode {
+            NSLayoutConstraint.activate([
+                backButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
+                deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
+                
+                saveButton.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
+                saveButton.widthAnchor.constraint(equalToConstant: view.bounds.width),
+                saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            ])
+        }
     }
     
     private func setupNavigationBarForEditMode() {
@@ -76,16 +83,6 @@ class ReminderController: UIViewController {
         let deleteBarButtonItem = UIBarButtonItem(customView: deleteButton)
         self.navigationItem.leftBarButtonItem = backBarButtonItem
         self.navigationItem.rightBarButtonItem = deleteBarButtonItem
-    }
-    
-    private func setupViewForAddMode() {
-        view.addSubview(saveButton)
-        
-        NSLayoutConstraint.activate([
-            saveButton.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
-            saveButton.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
     }
     
     private func setupNavigationBarForAddMode() {
@@ -109,9 +106,8 @@ class ReminderController: UIViewController {
         if modeSelected == .addReminderMode {
             print("Reminder Saved")
         } else if modeSelected == .editReminderMode {
-            print("Edited Reminder Saved")
+            print("Edits to Reminder Saved")
         }
-        
         navigationController?.popViewController(animated: true)
     }
 }

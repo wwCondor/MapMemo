@@ -29,7 +29,6 @@ class MainController: UIViewController {
         memoMap.overrideUserInterfaceStyle = .dark
         memoMap.isUserInteractionEnabled = true
         memoMap.isZoomEnabled = true
-//        memoMap.isUserLocationVisible
         memoMap.translatesAutoresizingMaskIntoConstraints = false
         return memoMap
     }()
@@ -63,7 +62,6 @@ class MainController: UIViewController {
 //        addButton.tintColor = ColorSet.tintColor
 //        addButton.backgroundColor?.withAlphaComponent(0.9)
         addButton.setImage(image, for: .normal)
-
         let inset: CGFloat = 15
         addButton.imageEdgeInsets = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
         addButton.addTarget(self, action: #selector(presentReminderController(sender:)), for: .touchUpInside)
@@ -226,6 +224,7 @@ class MainController: UIViewController {
     
     @objc func presentReminderController(sender: Any?) {
         reminderController.modeSelected = .addReminderMode
+//        reminderController.modeSelected = .editReminderMode // For testing editMode
         print("Launching ReminderController")
         navigationController?.pushViewController(reminderController, animated: true)
     }
@@ -248,16 +247,16 @@ class MainController: UIViewController {
     var reminders: [MapMemoStub] = []
     
     func addReminders() {
-        reminders.append(MapMemoStub.init(title: "First Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 10, trigger: .whenEnteringRegion, locationId: "LocationId1", iIsActive: false, regionBorderColor: .black))
-        reminders.append(MapMemoStub.init(title: "Second Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 20, trigger: .whenEnteringRegion, locationId: "LocationId2", iIsActive: true, regionBorderColor: .blue))
-        reminders.append(MapMemoStub.init(title: "Third Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 30, trigger: .whenEnteringRegion, locationId: "LocationId3", iIsActive: false, regionBorderColor: .green))
-        reminders.append(MapMemoStub.init(title: "Fourth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 40, trigger: .whenEnteringRegion, locationId: "LocationId4", iIsActive: true, regionBorderColor: .red))
-        reminders.append(MapMemoStub.init(title: "Fifth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 50, trigger: .whenEnteringRegion, locationId: "LocationId5", iIsActive: false, regionBorderColor: .yellow))
-        reminders.append(MapMemoStub.init(title: "Sixth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 60, trigger: .whenEnteringRegion, locationId: "LocationId6", iIsActive: true, regionBorderColor: .black))
-        reminders.append(MapMemoStub.init(title: "Seventh Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 70, trigger: .whenEnteringRegion, locationId: "LocationId7", iIsActive: false, regionBorderColor: .blue))
-        reminders.append(MapMemoStub.init(title: "Eigth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 80, trigger: .whenEnteringRegion, locationId: "LocationId8", iIsActive: true, regionBorderColor: .green))
-        reminders.append(MapMemoStub.init(title: "Ninth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 90, trigger: .whenEnteringRegion, locationId: "LocationId9", iIsActive: false, regionBorderColor: .red))
-        reminders.append(MapMemoStub.init(title: "Tenth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 100, trigger: .whenEnteringRegion, locationId: "LocationId0", iIsActive: true, regionBorderColor: .yellow))
+        reminders.append(MapMemoStub.init(title: "First Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 10, triggerWhenEntering: true, locationId: "LocationId1", iIsActive: false, regionBorderColor: BubbleColor.black.string))
+        reminders.append(MapMemoStub.init(title: "Second Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 20, triggerWhenEntering: false, locationId: "LocationId2", iIsActive: true, regionBorderColor: BubbleColor.blue.string))
+        reminders.append(MapMemoStub.init(title: "Third Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 30, triggerWhenEntering: true, locationId: "LocationId3", iIsActive: false, regionBorderColor: BubbleColor.green.string))
+        reminders.append(MapMemoStub.init(title: "Fourth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 40, triggerWhenEntering: false, locationId: "LocationId4", iIsActive: true, regionBorderColor: BubbleColor.red.string))
+        reminders.append(MapMemoStub.init(title: "Fifth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 50, triggerWhenEntering: true, locationId: "LocationId5", iIsActive: false, regionBorderColor: BubbleColor.yellow.string))
+        reminders.append(MapMemoStub.init(title: "Sixth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 60, triggerWhenEntering: false, locationId: "LocationId6", iIsActive: true, regionBorderColor: BubbleColor.black.string))
+        reminders.append(MapMemoStub.init(title: "Seventh Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 70, triggerWhenEntering: true, locationId: "LocationId7", iIsActive: false, regionBorderColor: BubbleColor.blue.string))
+        reminders.append(MapMemoStub.init(title: "Eigth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 80, triggerWhenEntering: false, locationId: "LocationId8", iIsActive: true, regionBorderColor: BubbleColor.green.string))
+        reminders.append(MapMemoStub.init(title: "Ninth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 90, triggerWhenEntering: true, locationId: "LocationId9", iIsActive: false, regionBorderColor: BubbleColor.red.string))
+        reminders.append(MapMemoStub.init(title: "Tenth Reminder", body: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), radius: 100, triggerWhenEntering: false, locationId: "LocationId0", iIsActive: true, regionBorderColor: BubbleColor.yellow.string))
     }
 }
 

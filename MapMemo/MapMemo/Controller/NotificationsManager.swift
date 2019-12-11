@@ -62,14 +62,11 @@ final class NotificationManager: NSObject {
                                                  radius: CLLocationDistance(notificationInfo.radius),
                                                  identifier: notificationInfo.locationId)
         
-        if notificationInfo.trigger == .whenEnteringRegion {
+        if notificationInfo.triggerWhenEntering == true {
             destinationRegion.notifyOnEntry = true
             destinationRegion.notifyOnExit = false
-        } else if notificationInfo.trigger == .whenLeavingRegion {
+        } else if notificationInfo.triggerWhenEntering == false {
             destinationRegion.notifyOnEntry = false
-            destinationRegion.notifyOnExit = true
-        } else if notificationInfo.trigger == .whenEnteringAndLeavingRegion {
-            destinationRegion.notifyOnEntry = true
             destinationRegion.notifyOnExit = true
         }
         
