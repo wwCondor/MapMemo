@@ -32,7 +32,7 @@ class CustomButton: UIButton {
     }
 }
 
-class AddButton: CustomButton {
-    
-}
+//class AddButton: CustomButton {
+//    
+//}
 

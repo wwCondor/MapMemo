@@ -68,3 +68,12 @@ extension UIImage {
         return newImage!
     }
 }
+
+//extension UIView {
+//    func addBottomBorder(with width: CGFloat) {
+//        let border = CALayer()
+//        border.backgroundColor = ColorSet.objectColor.cgColor
+//        border.frame = CGRect(x: 0, y: self.frame.size.height - width, width: self.frame.size.width, height: width)
+//        self.layer.addSublayer(border)
+//    }
+//}
