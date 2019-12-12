@@ -18,7 +18,7 @@ struct MapMemoStub {
     var triggerWhenEntering: Bool // if false it will trigger when leaving instead
     let locationId: String
     var iIsActive: Bool // Reminders become reusable as user can re-activate reminder after use
-    var regionBorderColor: String
+    var bubbleColor: String
 }
 
 struct Coordinate {

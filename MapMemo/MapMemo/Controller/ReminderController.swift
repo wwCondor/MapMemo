@@ -9,9 +9,34 @@
 import UIKit
 
 // User adds or edits reminder by editing required information:
-class ReminderController: UIViewController {
+class ReminderController: UIViewController, UIScrollViewDelegate {
     
     var modeSelected: ModeSelected = .addReminderMode
+    
+    var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
+    var radiusInMeters: Int = 10
+    
+    lazy var scrollView: UIScrollView = {
+        let scrollView = UIScrollView(frame: .zero)
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.backgroundColor = UIColor.systemYellow
+        scrollView.isUserInteractionEnabled = true
+        scrollView.isScrollEnabled = true
+        scrollView.bounces = true
+        scrollView.delegate = self
+        scrollView.showsVerticalScrollIndicator = true
+        return scrollView
+    }()
+    
+    lazy var contentView: UIView = {
+        let contentView = UIView()
+        return contentView
+    }()
+    
+//    lazy var objectSeparator: UIView = {
+//        let objectSeparator = UIView()
+//        return objectSeparator
+//    }()
     
     lazy var backButton: CustomButton = {
         let backButton = CustomButton(type: .custom)
@@ -43,6 +68,73 @@ class ReminderController: UIViewController {
         return saveButton
     }()
     
+    lazy var titleInputField: TextInputField = {
+        let titleInputField = TextInputField()
+        titleInputField.text = "Enter Reminder Title"
+        return titleInputField
+    }()
+    
+    lazy var addressInputField: TextInputField = {
+        let addressInputField = TextInputField()
+        addressInputField.text = "Enter Address"
+        return addressInputField
+    }()
+    
+    lazy var longitudeInputField: TextInputField = {
+        let longitudeInfoField = TextInputField()
+        longitudeInfoField.text = "Longitude"
+        return longitudeInfoField
+    }()
+    
+    lazy var latitudeInputField: TextInputField = {
+        let latitudeInfoField = TextInputField()
+        latitudeInfoField.text = "Latitude"
+        return latitudeInfoField
+    }()
+    
+    lazy var messageInputField: TextInputField = {
+        let messageInputField = TextInputField()
+        messageInputField.text = "A short message for your reminder."
+        return messageInputField
+    }()
+    
+    lazy var triggerInfoField: TextInputField = {
+        let triggerInfoField = TextInputField()
+        triggerInfoField.text = "Trigger reminder when leaving bubble"
+        return triggerInfoField
+    }()
+    
+    lazy var repeatOrNotInfoField: TextInputField = {
+        let repeatOrNotInfoField = TextInputField()
+        repeatOrNotInfoField.text = "Use Reminder Once"
+        return repeatOrNotInfoField
+    }()
+    
+    lazy var bubbleColorInfoField: TextInputField = {
+        let bubbleColorInfoField = TextInputField()
+        bubbleColorInfoField.text = "Bubble color"
+        return bubbleColorInfoField
+    }()
+    
+    lazy var bubbleRadiusInfoField: TextInputField = {
+        let bubbleRadiusInfoField = TextInputField()
+        bubbleRadiusInfoField.text = "Bubble radius: \(radiusInMeters)m"
+        return bubbleRadiusInfoField
+    }()
+    
+    lazy var bubbleColorView: UIView = {
+        let bubbleColorView = UIView()
+        bubbleColorView.translatesAutoresizingMaskIntoConstraints = false
+        bubbleColorView.layer.masksToBounds = true
+        bubbleColorView.backgroundColor = UIColor(named: self.bubbleColors[0])!.withAlphaComponent(0.7)
+        bubbleColorView.layer.borderWidth = 3
+        bubbleColorView.layer.borderColor = UIColor(named: self.bubbleColors[0])?.cgColor
+        bubbleColorView.layer.cornerRadius = Constant.inputFieldSize/4 // Set later?
+        return bubbleColorView
+    }()
+    
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -58,6 +150,18 @@ class ReminderController: UIViewController {
     
     private func setupView() {
         view.addSubview(saveButton)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        scrollView.addSubview(titleInputField)
+        scrollView.addSubview(addressInputField)
+        scrollView.addSubview(longitudeInputField)
+        scrollView.addSubview(latitudeInputField)
+        scrollView.addSubview(messageInputField)
+        scrollView.addSubview(triggerInfoField)
+        scrollView.addSubview(repeatOrNotInfoField)
+        scrollView.addSubview(bubbleColorInfoField)
+        scrollView.addSubview(bubbleColorView)
+        scrollView.addSubview(bubbleRadiusInfoField)
         
         if modeSelected == .addReminderMode {
             NSLayoutConstraint.activate([
@@ -75,6 +179,56 @@ class ReminderController: UIViewController {
                 saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
         }
+        
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: saveButton.topAnchor),
+            
+            titleInputField.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            titleInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            titleInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            addressInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
+            addressInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            addressInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            longitudeInputField.topAnchor.constraint(equalTo: addressInputField.bottomAnchor),
+            longitudeInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            longitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            longitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+
+            latitudeInputField.topAnchor.constraint(equalTo: addressInputField.bottomAnchor),
+            latitudeInputField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            latitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            latitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            messageInputField.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
+            messageInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            messageInputField.heightAnchor.constraint(equalToConstant: 2*Constant.inputFieldSize),
+            
+            triggerInfoField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            triggerInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            triggerInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            repeatOrNotInfoField.topAnchor.constraint(equalTo: triggerInfoField.bottomAnchor),
+            repeatOrNotInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            repeatOrNotInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            bubbleColorInfoField.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor),
+            bubbleColorInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            bubbleColorInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            bubbleColorView.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor, constant: Constant.offset),
+            bubbleColorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constant.offset),
+            bubbleColorView.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
+            bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
+            
+            bubbleRadiusInfoField.topAnchor.constraint(equalTo: bubbleColorInfoField.bottomAnchor),
+            bubbleRadiusInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            bubbleRadiusInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize)
+        ])
     }
     
     private func setupNavigationBarForEditMode() {

@@ -11,9 +11,12 @@ import UserNotifications
 
 final class NotificationManager: NSObject {
     
+    let notificationCenter = UNUserNotificationCenter.current()
+
+    
     override init() {
         super.init()
-
+        notificationCenter.delegate = self
     }
     
     var notificationAuthorizationApproved: Bool = false
@@ -22,7 +25,6 @@ final class NotificationManager: NSObject {
     
     static let shared = NotificationManager()
     
-    let notificationCenter = UNUserNotificationCenter.current()
     
     func createLocalNotification(notificationInfo: MapMemoStub) {
         let content = UNMutableNotificationContent()
@@ -83,6 +85,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
             let options: UNAuthorizationOptions = [.badge, .sound, .alert]
             
             notificationCenter.requestAuthorization(options: options) { (authorizationGranted, error) in
+                print("Reqesting authorization")
                 if authorizationGranted == false {
                     self.notificationAuthorizationApproved = false
                     print("Notification authorization declined")
@@ -97,9 +100,10 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         // Check Authorization Status
         func checkNotificationAuthorization() {
             notificationCenter.getNotificationSettings { (settings) in
+                print("Checking Notification Authorization")
                 if settings.authorizationStatus != .authorized {
                     self.notificationAuthorizationApproved = false
-                    print("Notification authorization declined")
+                    print("Notification authorization declined") // MARK: Handle
                     // Notifications not allowed
                 } else {
                     self.notificationAuthorizationApproved = true
@@ -114,22 +118,23 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
     }
     
     // When user taps notification app opens by default
+    // Npt sure if we actually need this
     // This enables a response to the notification
-    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if response.notification.request.identifier == "Local Notification" {
-            switch response.actionIdentifier {
-            case "Snooze":
-                print("Remind in 3 minutes") // set a timer in xx minutes to remind user
-            case "ShowMap":
-                print("Show map and some message label") // center map on user and show message label
-            default:
-                print("Unknown action")
-            }
-            // Here we do something, for example:
-            // 1. Display reminder message on map
-            // 2. Center map on current position
-            print("Handling notifications with the local notificaiton identifier")
-        }
-        completionHandler()
-    }
+//    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+//        if response.notification.request.identifier == "Local Notification" {
+//            switch response.actionIdentifier {
+//            case "Snooze":
+//                print("Remind in 3 minutes") // set a timer in xx minutes to remind user
+//            case "ShowMap":
+//                print("Show map and some message label") // center map on user and show message label
+//            default:
+//                print("Unknown action")
+//            }
+//            // Here we do something, for example:
+//            // 1. Display reminder message on map
+//            // 2. Center map on current position
+//            print("Handling notifications with the local notificaiton identifier")
+//        }
+//        completionHandler()
+//    }
 }
