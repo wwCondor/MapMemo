@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreLocation
 
 // User adds or edits reminder by editing required information:
 class ReminderController: UIViewController {//}, UIScrollViewDelegate {
@@ -423,6 +424,48 @@ extension ReminderController: UITextFieldDelegate {
         }
     }
     
+    func getLocationName(location: CLLocation) {
+        locationInfoField.text = "Trying to obtain location from coordinates..."
+        let geographicCoder = CLGeocoder()
+        
+        geographicCoder.reverseGeocodeLocation(location) { (placemark, error) in
+            guard error == nil else {
+                self.locationInfoField.text = "Could not obtain location from current coordinates"
+                return
+            }
+            guard let placemark = placemark?.first else { // country
+                return
+            }
+            guard let locality = placemark.locality else { // city
+                return
+            }
+            guard let thoroughfare = placemark.thoroughfare else { // street
+                return
+            }
+//            let locationName = "\(locality)"
+            print(placemark)
+            let locationName = "\(thoroughfare), \(locality)"
+            self.locationInfoField.text = locationName
+        }
+    }
+    
+    func checkCoordinateInput() {
+        if latitudeReceived == true && longitudeReceived == true {
+            // If both are true we try to obtain location from coordinates
+            guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
+            let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+            getLocationName(location: location)
+        } else {
+            if latitudeReceived == false && longitudeReceived == true {
+                locationInfoField.text = PlaceHolderText.locationLatitude
+            } else if latitudeReceived == true && longitudeReceived == false {
+                locationInfoField.text = PlaceHolderText.locationLongitude
+            } else if latitudeReceived == false && longitudeReceived == false {
+                locationInfoField.text = PlaceHolderText.location
+            }
+        }
+    }
+    
     func textFieldDidEndEditing(_ textField: UITextField) {
             guard let input = textField.text else { return }
         
@@ -437,8 +480,10 @@ extension ReminderController: UITextFieldDelegate {
 //                    presentAlert(description: ReminderError.missingMessage.localizedDescription, viewController: self)
                 }
             case latitudeInputField:
+                latitudeReceived = false
                 if textField.text!.isEmpty {
                     presentAlert(description: ReminderError.missingLatitude.localizedDescription, viewController: self)
+                    latitudeReceived = false
                 } else {
                     let latitudeLimit: Float = 90
                     if input.floatValue < -latitudeLimit {
@@ -448,9 +493,12 @@ extension ReminderController: UITextFieldDelegate {
                     }
                     latitudeReceived = true
                 }
+                checkCoordinateInput()
             case longitudeInputField:
+                longitudeReceived = false
                 if textField.text!.isEmpty {
                     presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
+                    longitudeReceived = false
                 } else {
                     let longitudeLimit: Float = 180
                     if input.floatValue < -longitudeLimit {
@@ -460,6 +508,7 @@ extension ReminderController: UITextFieldDelegate {
                     }
                     longitudeReceived = true
                 }
+                checkCoordinateInput()
             default:
                 break
             }

@@ -76,3 +76,10 @@ extension String {
         return (self as NSString).floatValue
     }
 }
+
+extension String {
+    // String to Double
+    var doubleValue: Double {
+        return (self as NSString).doubleValue
+    }
+}
