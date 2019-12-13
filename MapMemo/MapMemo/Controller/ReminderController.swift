@@ -153,6 +153,11 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        titleInputField.delegate = self
+        messageInputField.delegate = self
+        latitudeInputField.delegate = self
+        longitudeInputField.delegate = self
+        
         if modeSelected == .addReminderMode {
             view.backgroundColor = ColorSet.appBackgroundColor
             setupNavigationBarForAddMode()
@@ -283,5 +288,61 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             print("Edits to Reminder Saved")
         }
         navigationController?.popViewController(animated: true)
+    }
+}
+
+extension ReminderController: UITextFieldDelegate {
+    // Makes sure title and/or message input is not to long
+    // Makes sure latitude/longitude input is limited to certain characters
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        var result = true
+        let maxLengthTitle = 20
+        let maxLengthMessage = 40
+        
+        var currentString: NSString = ""
+        
+        switch textField {
+        case titleInputField:
+            currentString = titleInputField.text! as NSString
+            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+            result = newString.length <= maxLengthTitle
+        case messageInputField:
+            currentString = messageInputField.text! as NSString
+            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+            result = newString.length <= maxLengthMessage
+        case latitudeInputField, longitudeInputField:
+            if string.count > 0 {
+                let allowedCharacters = NSCharacterSet(charactersIn: "1234567890.-")//.inverted // This would be opposite
+                let stringWithOnlyAllowedCharacters = string.rangeOfCharacter(from: allowedCharacters as CharacterSet) != nil
+                result = stringWithOnlyAllowedCharacters
+            }
+        default:
+            break
+        }
+        return result
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        // If user input is outside min or max allowed latitude or longitude it will be set the nearest possible value
+        guard let input = textField.text else { return }
+
+        switch textField {
+        case latitudeInputField:
+            let latitudeLimit: Float = 90
+            if input.floatValue < -latitudeLimit {
+                textField.text = "-90"
+            } else if input.floatValue > latitudeLimit {
+                textField.text = "90"
+            }
+        case longitudeInputField:
+            let longitudeLimit: Float = 180
+            if input.floatValue < -longitudeLimit {
+                textField.text = "-180"
+            } else if input.floatValue > longitudeLimit {
+                textField.text = "180"
+            }
+        default:
+            break
+        }
     }
 }

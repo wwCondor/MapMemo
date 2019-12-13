@@ -54,7 +54,8 @@ extension UIViewController {
 
 extension Double {
     // Converts to radians. Used for compass image rotation
-    var toRadians: CGFloat { return CGFloat(self * .pi / 180) }
+    var toRadians: CGFloat {
+        return CGFloat(self * .pi / 180) }
 //    var toDegrees: CGFloat { return CGFloat(self * 180 / .pi) }
 }
 
@@ -69,11 +70,9 @@ extension UIImage {
     }
 }
 
-//extension UIView {
-//    func addBottomBorder(with width: CGFloat) {
-//        let border = CALayer()
-//        border.backgroundColor = ColorSet.objectColor.cgColor
-//        border.frame = CGRect(x: 0, y: self.frame.size.height - width, width: self.frame.size.width, height: width)
-//        self.layer.addSublayer(border)
-//    }
-//}
+extension String {
+    // Convert String to Float
+    var floatValue: Float {
+        return (self as NSString).floatValue
+    }
+}
