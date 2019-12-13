@@ -23,3 +23,21 @@ extension AuthorizationError: LocalizedError {
         }
     }
 }
+
+enum ReminderError: Error {
+    case missingTitle
+//    case missingMessage // Should this be allowed to be empty?
+    case missingLatitude
+    case missingLongitude
+}
+
+extension ReminderError: LocalizedError {
+    public var localizedDescription: String {
+        switch self {
+        case .missingTitle:                 return "Woops! It seems you forgot to enter a title"
+//        case .missingMessage:               return ""
+        case .missingLatitude:              return "Woops! It seems you forgot to enter a value for the latitude"
+        case .missingLongitude:             return "Woops! It seems you forgot to enter a value for the longitude"
+        }
+    }
+}

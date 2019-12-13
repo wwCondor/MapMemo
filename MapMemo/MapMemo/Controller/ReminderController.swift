@@ -13,7 +13,12 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     var modeSelected: ModeSelected = .addReminderMode
     
+    var colorSelected = 0
     var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
+    
+    var latitudeReceived: Bool = false
+    var longitudeReceived: Bool = false
+    
     var radiusInMeters: Int = 50
     
     lazy var scrollView: UIScrollView = {
@@ -22,7 +27,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         scrollView.backgroundColor = ColorSet.appBackgroundColor
         scrollView.layer.borderColor = ColorSet.objectColor.cgColor
         scrollView.layer.borderWidth = Constant.borderWidth
-        scrollView.contentSize.height = Constant.inputFieldSize*9
+        scrollView.contentSize.height = Constant.inputFieldSize*10
 //        scrollView.isUserInteractionEnabled = true
 //        scrollView.isScrollEnabled = true
         scrollView.bounces = true
@@ -64,66 +69,91 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     lazy var titleInputField: TextInputField = {
         let titleInputField = TextInputField()
-        titleInputField.text = "Enter Reminder Title"
+        titleInputField.text = PlaceHolderText.title
         titleInputField.layer.borderWidth = 0
         return titleInputField
-    }()
-    
-//    lazy var addressInputField: TextInputField = {
-//        let addressInputField = TextInputField()
-//        addressInputField.text = "Enter Address"
-//        return addressInputField
-//    }()
-    
-    lazy var latitudeInputField: TextInputField = {
-        let latitudeInfoField = TextInputField()
-        latitudeInfoField.text = "Enter Latitude"
-        return latitudeInfoField
-    }()
-    
-    lazy var longitudeInputField: TextInputField = {
-        let longitudeInfoField = TextInputField()
-        longitudeInfoField.text = "Enter Longitude"
-        return longitudeInfoField
-    }()
+    }() // MARK: reminder.title = titleInputField.text
     
     lazy var messageInputField: TextInputField = {
         let messageInputField = TextInputField()
-        messageInputField.text = "A short message for your reminder."
+        messageInputField.text = PlaceHolderText.message
         return messageInputField
+    }() // MARK: reminder.message = messageInputField.text
+    
+    lazy var latitudeInputField: TextInputField = {
+        let latitudeInfoField = TextInputField()
+        latitudeInfoField.text = PlaceHolderText.latitude
+        return latitudeInfoField
+    }() // MARK: reminder.latitude = latitudeInputField.text save as Float!
+    
+    lazy var longitudeInputField: TextInputField = {
+        let longitudeInfoField = TextInputField()
+        longitudeInfoField.text = PlaceHolderText.longitude
+        return longitudeInfoField
+    }() // MARK: reminder.longitude = longitudeInputField.text save as Float!
+    
+    lazy var locationInfoField: TextInputField = {
+        let locationInfoField = TextInputField()
+        locationInfoField.isUserInteractionEnabled = false
+        locationInfoField.text = PlaceHolderText.location
+        return locationInfoField
     }()
     
     lazy var triggerInfoField: TextInputField = {
         let triggerInfoField = TextInputField()
-        triggerInfoField.text = "Trigger reminder when leaving bubble"
+        triggerInfoField.text = ToggleText.leavingTrigger
         return triggerInfoField
+    }()
+    
+    lazy var triggerToggle: TapToggleView = {
+        let triggerToggle = TapToggleView()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleTriggerMode(sender:)))
+        triggerToggle.addGestureRecognizer(tapGesture)
+        return triggerToggle // MARK: reminder.triggerWhenEntering = triggerToggle.isOn
+
     }()
     
     lazy var repeatOrNotInfoField: TextInputField = {
         let repeatOrNotInfoField = TextInputField()
-        repeatOrNotInfoField.text = "Use Reminder Once"
+        repeatOrNotInfoField.text = ToggleText.isNotRepeating
         return repeatOrNotInfoField
+    }()
+    
+    lazy var repeatToggle: TapToggleView = {
+        let repeatToggle = TapToggleView()
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleRepeatMode(sender:)))
+        repeatToggle.addGestureRecognizer(tapGesture)
+        return repeatToggle // MARK: reminder.isRepeating = repeatToggle.isOn
     }()
     
     lazy var bubbleColorInfoField: TextInputField = {
         let bubbleColorInfoField = TextInputField()
-        bubbleColorInfoField.text = "Bubble color"
+        bubbleColorInfoField.text = PlaceHolderText.bubbleColor
         return bubbleColorInfoField
     }()
     
+    lazy var colorToggle: UIView = {
+        let colorToggle = UIView()
+        colorToggle.translatesAutoresizingMaskIntoConstraints = false
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleColor(sender:)))
+        colorToggle.addGestureRecognizer(tapGesture)
+        return colorToggle // MARK: reminder.bubbleColor = triggerInfoTouchView.isOn
+    }()
+ 
     lazy var bubbleColorView: UIView = {
         let bubbleColorView = UIView()
         bubbleColorView.translatesAutoresizingMaskIntoConstraints = false
         bubbleColorView.layer.masksToBounds = true
-        bubbleColorView.backgroundColor = UIColor(named: self.bubbleColors[0])!.withAlphaComponent(0.7)
+        bubbleColorView.backgroundColor = UIColor(named: self.bubbleColors[colorSelected])!.withAlphaComponent(0.7)
         bubbleColorView.layer.borderWidth = 3
-        bubbleColorView.layer.borderColor = UIColor(named: self.bubbleColors[0])?.cgColor
+        bubbleColorView.layer.borderColor = UIColor(named: self.bubbleColors[colorSelected])?.cgColor
         bubbleColorView.layer.cornerRadius = Constant.inputFieldSize/4 // Set later?
         return bubbleColorView
     }()
     
     lazy var bubbleRadiusInfoField: TextInputField = {
         let bubbleRadiusInfoField = TextInputField()
+        bubbleRadiusInfoField.isUserInteractionEnabled = false
         bubbleRadiusInfoField.text = "Bubble radius: \(radiusInMeters)m"
         return bubbleRadiusInfoField
     }()
@@ -138,17 +168,9 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         bubbleRadiusSlider.minimumValue = 0
         bubbleRadiusSlider.maximumValue = 6
         bubbleRadiusSlider.setValue(2, animated: true)
-        bubbleRadiusSlider.addTarget(self, action: #selector(changeBubbleRadius(_:)), for: .valueChanged)
+        bubbleRadiusSlider.addTarget(self, action: #selector(setBubbleRadius(_:)), for: .valueChanged)
         return bubbleRadiusSlider
     }()
-    
-    @objc func changeBubbleRadius(_ sender: UISlider) { // thumb size = 30x30
-        sender.value = roundf(sender.value) // this allows thumb to snap between values
-        let radiiInMeters: [Float] = [10, 25, 50, 100, 500, 1000, 5000]
-        let radiusSelected = Int(radiiInMeters[Int(roundf(sender.value))])
-        radiusInMeters = radiusSelected
-        bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected)m"
-    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -172,14 +194,17 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         view.addSubview(saveButton)
         view.addSubview(scrollView)
         scrollView.addSubview(titleInputField)
-//        scrollView.addSubview(addressInputField)
+        scrollView.addSubview(messageInputField)
         scrollView.addSubview(longitudeInputField)
         scrollView.addSubview(latitudeInputField)
-        scrollView.addSubview(messageInputField)
+        scrollView.addSubview(locationInfoField)
         scrollView.addSubview(triggerInfoField)
+        scrollView.addSubview(triggerToggle)
         scrollView.addSubview(repeatOrNotInfoField)
+        scrollView.addSubview(repeatToggle)
         scrollView.addSubview(bubbleColorInfoField)
         scrollView.addSubview(bubbleColorView)
+        scrollView.addSubview(colorToggle)
         scrollView.addSubview(bubbleRadiusInfoField)
         scrollView.addSubview(bubbleRadiusSlider)
         
@@ -209,32 +234,40 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             titleInputField.topAnchor.constraint(equalTo: scrollView.topAnchor),
             titleInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             titleInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            messageInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
+            messageInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            messageInputField.heightAnchor.constraint(equalToConstant: 2*Constant.inputFieldSize),
 
-//            addressInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
-//            addressInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
-//            addressInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
-
-            longitudeInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
-            longitudeInputField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            longitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
-            longitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
-
-            latitudeInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
+            latitudeInputField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
             latitudeInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             latitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
             latitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
-            messageInputField.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
-            messageInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            messageInputField.heightAnchor.constraint(equalToConstant: 2*Constant.inputFieldSize),
+            longitudeInputField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            longitudeInputField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            longitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            longitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            locationInfoField.topAnchor.constraint(equalTo: latitudeInputField.bottomAnchor),
+            locationInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            locationInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
-            triggerInfoField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            triggerInfoField.topAnchor.constraint(equalTo: locationInfoField.bottomAnchor),
             triggerInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             triggerInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            triggerToggle.topAnchor.constraint(equalTo: locationInfoField.bottomAnchor),
+            triggerToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            triggerToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
             repeatOrNotInfoField.topAnchor.constraint(equalTo: triggerInfoField.bottomAnchor),
             repeatOrNotInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             repeatOrNotInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            repeatToggle.topAnchor.constraint(equalTo: triggerInfoField.bottomAnchor),
+            repeatToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            repeatToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
             bubbleColorInfoField.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor),
             bubbleColorInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
@@ -244,6 +277,10 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             bubbleColorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constant.offset),
             bubbleColorView.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
             bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
+            
+            colorToggle.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor),
+            colorToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            colorToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
             bubbleRadiusInfoField.topAnchor.constraint(equalTo: bubbleColorInfoField.bottomAnchor),
             bubbleRadiusInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
@@ -268,6 +305,45 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         let backBarButtonItem = UIImage(named: Icon.backIcon.name)!.withRenderingMode(.alwaysTemplate)
         self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = backBarButtonItem
         self.navigationController?.navigationBar.backIndicatorImage = backBarButtonItem
+    }
+    
+    // MARK: Toggles
+    @objc func toggleTriggerMode(sender: UITapGestureRecognizer) {
+//        print("Toggle ze trigger mode")
+        triggerToggle.viewTapped()
+        if triggerToggle.isOn == true {
+            triggerInfoField.text = ToggleText.enteringTrigger
+        } else if triggerToggle.isOn == false {
+            triggerInfoField.text = ToggleText.leavingTrigger
+        }
+    }
+    
+    @objc func toggleRepeatMode(sender: UITapGestureRecognizer) {
+//        print("Toggle ze repeat mode")
+        repeatToggle.viewTapped()
+        if repeatToggle.isOn == true {
+            repeatOrNotInfoField.text = ToggleText.isRepeating
+        } else if repeatToggle.isOn == false {
+            repeatOrNotInfoField.text = ToggleText.isNotRepeating
+        }
+    }
+    
+    @objc func toggleColor(sender: UITapGestureRecognizer) {
+        if colorSelected != bubbleColors.count - 1 {
+            colorSelected += 1
+        } else if colorSelected == bubbleColors.count - 1 {
+            colorSelected = 0
+        }
+        bubbleColorView.backgroundColor = UIColor(named: self.bubbleColors[colorSelected])!.withAlphaComponent(0.7)
+        bubbleColorView.layer.borderColor = UIColor(named: self.bubbleColors[colorSelected])?.cgColor
+    }
+    
+    @objc func setBubbleRadius(_ sender: UISlider) { // thumb size = 30x30
+        sender.value = roundf(sender.value) // this allows thumb to snap between values
+        let radiiInMeters: [Float] = [10, 25, 50, 100, 500, 1000, 5000]
+        let radiusSelected = Int(radiiInMeters[Int(roundf(sender.value))])
+        radiusInMeters = radiusSelected
+        bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected)m"
     }
     
     @objc private func cancel() {
@@ -322,27 +398,70 @@ extension ReminderController: UITextFieldDelegate {
         return result
     }
     
-    func textFieldDidEndEditing(_ textField: UITextField) {
-        // If user input is outside min or max allowed latitude or longitude it will be set the nearest possible value
-        guard let input = textField.text else { return }
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        // If current text is placeholder text, reset it to ""
+        guard let text = textField.text else { return }
 
         switch textField {
+        case titleInputField:
+            if text == PlaceHolderText.title {
+                textField.text = ""
+            }
+        case messageInputField:
+            if text == PlaceHolderText.message {
+                textField.text = ""
+            }
         case latitudeInputField:
-            let latitudeLimit: Float = 90
-            if input.floatValue < -latitudeLimit {
-                textField.text = "-90"
-            } else if input.floatValue > latitudeLimit {
-                textField.text = "90"
+            if text == PlaceHolderText.latitude {
+                textField.text = ""
             }
         case longitudeInputField:
-            let longitudeLimit: Float = 180
-            if input.floatValue < -longitudeLimit {
-                textField.text = "-180"
-            } else if input.floatValue > longitudeLimit {
-                textField.text = "180"
+            if text == PlaceHolderText.longitude {
+                textField.text = ""
             }
-        default:
-            break
+        default: break
         }
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+            guard let input = textField.text else { return }
+        
+            switch textField {
+            case titleInputField:
+                if textField.text!.isEmpty {
+                    presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+                }
+            case messageInputField:
+                if textField.text!.isEmpty {
+                    print("Seems there is not message added to the reminder but maybe that's ok")
+//                    presentAlert(description: ReminderError.missingMessage.localizedDescription, viewController: self)
+                }
+            case latitudeInputField:
+                if textField.text!.isEmpty {
+                    presentAlert(description: ReminderError.missingLatitude.localizedDescription, viewController: self)
+                } else {
+                    let latitudeLimit: Float = 90
+                    if input.floatValue < -latitudeLimit {
+                        textField.text = "-90"
+                    } else if input.floatValue > latitudeLimit {
+                        textField.text = "90"
+                    }
+                    latitudeReceived = true
+                }
+            case longitudeInputField:
+                if textField.text!.isEmpty {
+                    presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
+                } else {
+                    let longitudeLimit: Float = 180
+                    if input.floatValue < -longitudeLimit {
+                        textField.text = "-180"
+                    } else if input.floatValue > longitudeLimit {
+                        textField.text = "180"
+                    }
+                    longitudeReceived = true
+                }
+            default:
+                break
+            }
     }
 }

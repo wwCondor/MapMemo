@@ -20,13 +20,13 @@ class TextInputField: UITextField {
         setupViews()
     }
     
-    override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: Constant.largeTextInset, dy: 0)
-    }
-
-    override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: Constant.largeTextInset, dy: 0)
-    }
+//    override func textRect(forBounds bounds: CGRect) -> CGRect {
+//        return bounds.insetBy(dx: Constant.largeTextInset, dy: 0)
+//    }
+//
+//    override func editingRect(forBounds bounds: CGRect) -> CGRect {
+//        return bounds.insetBy(dx: Constant.largeTextInset, dy: 0)
+//    }
     
     func setupViews() {
         translatesAutoresizingMaskIntoConstraints = false

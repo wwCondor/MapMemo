@@ -31,8 +31,3 @@ class CustomButton: UIButton {
         backgroundColor?.withAlphaComponent(0.9)
     }
 }
-
-//class AddButton: CustomButton {
-//    
-//}
-
