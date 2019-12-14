@@ -10,6 +10,9 @@
 		0B11C07923A12D5400E81DAA /* ModeSelected.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C07823A12D5400E81DAA /* ModeSelected.swift */; };
 		0B11C07B23A26A4100E81DAA /* TextInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C07A23A26A4100E81DAA /* TextInputField.swift */; };
 		0B11C07F23A39B1E00E81DAA /* TapToggleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C07E23A39B1E00E81DAA /* TapToggleView.swift */; };
+		0B11C08223A5077E00E81DAA /* Reminder+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C08023A5077E00E81DAA /* Reminder+CoreDataClass.swift */; };
+		0B11C08323A5077E00E81DAA /* Reminder+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C08123A5077E00E81DAA /* Reminder+CoreDataProperties.swift */; };
+		0B11C08523A509DB00E81DAA /* FetchedResultsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B11C08423A509DB00E81DAA /* FetchedResultsController.swift */; };
 		0BA9CF02239E501700ACB8E3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF01239E501700ACB8E3 /* AppDelegate.swift */; };
 		0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF03239E501700ACB8E3 /* SceneDelegate.swift */; };
 		0BA9CF06239E501700ACB8E3 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF05239E501700ACB8E3 /* MainController.swift */; };
@@ -34,6 +37,9 @@
 		0B11C07823A12D5400E81DAA /* ModeSelected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeSelected.swift; sourceTree = "<group>"; };
 		0B11C07A23A26A4100E81DAA /* TextInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInputField.swift; sourceTree = "<group>"; };
 		0B11C07E23A39B1E00E81DAA /* TapToggleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapToggleView.swift; sourceTree = "<group>"; };
+		0B11C08023A5077E00E81DAA /* Reminder+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reminder+CoreDataClass.swift"; sourceTree = "<group>"; };
+		0B11C08123A5077E00E81DAA /* Reminder+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Reminder+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		0B11C08423A509DB00E81DAA /* FetchedResultsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FetchedResultsController.swift; sourceTree = "<group>"; };
 		0BA9CEFE239E501700ACB8E3 /* MapMemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapMemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0BA9CF01239E501700ACB8E3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0BA9CF03239E501700ACB8E3 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -96,6 +102,8 @@
 				0BA9CF0F239E501800ACB8E3 /* LaunchScreen.storyboard */,
 				0BA9CF12239E501800ACB8E3 /* Info.plist */,
 				0BA9CF0A239E501700ACB8E3 /* MapMemo.xcdatamodeld */,
+				0B11C08023A5077E00E81DAA /* Reminder+CoreDataClass.swift */,
+				0B11C08123A5077E00E81DAA /* Reminder+CoreDataProperties.swift */,
 				0BA9CF2F239E775C00ACB8E3 /* Delete */,
 			);
 			path = MapMemo;
@@ -109,6 +117,7 @@
 				0BA9CF27239E71BE00ACB8E3 /* ActiveRemindersController.swift */,
 				0BA9CF29239E723500ACB8E3 /* InfoDisplayManager.swift */,
 				0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */,
+				0B11C08423A509DB00E81DAA /* FetchedResultsController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -233,6 +242,9 @@
 				0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */,
 				0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */,
 				0B11C07923A12D5400E81DAA /* ModeSelected.swift in Sources */,
+				0B11C08223A5077E00E81DAA /* Reminder+CoreDataClass.swift in Sources */,
+				0B11C08523A509DB00E81DAA /* FetchedResultsController.swift in Sources */,
+				0B11C08323A5077E00E81DAA /* Reminder+CoreDataProperties.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

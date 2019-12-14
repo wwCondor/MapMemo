@@ -37,7 +37,7 @@ final class NotificationManager: NSObject {
 //        let triggerDate = Calendar.current.dateComponents([.second], from: date)
 //        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
         content.title = notificationInfo.title
-        content.body = notificationInfo.body
+        content.body = notificationInfo.message
         content.sound = .default
 //        content.badge = 1
         
@@ -61,7 +61,7 @@ final class NotificationManager: NSObject {
         let longitude = notificationInfo.coordinate.longitude
                 
         let destinationRegion = CLCircularRegion(center: CLLocationCoordinate2DMake(lattitude, longitude),
-                                                 radius: CLLocationDistance(notificationInfo.radius),
+                                                 radius: CLLocationDistance(notificationInfo.bubbleRadius),
                                                  identifier: notificationInfo.locationId)
         
         if notificationInfo.triggerWhenEntering == true {

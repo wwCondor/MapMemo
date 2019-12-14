@@ -10,11 +10,11 @@ import CoreLocation
 
 struct MapMemoStub {
     let title: String
-    let body: String
+    let message: String
     let coordinate: Coordinate
 //    let coordinateLongitude: Double
 //    let coordinateLatitude: Double
-    var radius: Int
+    var bubbleRadius: Double
     var triggerWhenEntering: Bool // if false it will trigger when leaving instead
     let locationId: String
     var isRepeating: Bool // Reminders become reusable as user can re-activate reminder after use
