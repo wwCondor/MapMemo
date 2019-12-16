@@ -252,8 +252,8 @@ extension MainController: CLLocationManagerDelegate {
     // Informs delegate of new heading. Used for updating compass image by rotating it
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         UIView.animate(withDuration: 0.3) {
-            let angle = newHeading.trueHeading.toRadians
-            self.compass.transform = CGAffineTransform(rotationAngle: angle)
+            let angle = CGFloat(newHeading.trueHeading).degreesToRadians
+            self.compass.transform = CGAffineTransform(rotationAngle: -CGFloat(angle))
         }
     }
     
@@ -313,7 +313,7 @@ extension MainController: MKMapViewDelegate {
         return annotationView
     }
     
-    // This handle the drawing of a circle around the location
+    // This handles the drawing of a circle around the location
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if overlay is MKCircle {
             let circle = MKCircleRenderer(overlay: overlay)

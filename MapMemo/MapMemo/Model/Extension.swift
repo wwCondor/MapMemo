@@ -52,12 +52,15 @@ extension UIViewController {
     }
 }
 
-extension Double {
+
+//extension CGFloat {
+//  var toRadians: CGFloat { return self * .pi / 180 }
+//  var toDegrees: CGFloat { return self * 180 / .pi }
+//}
+
+extension FloatingPoint {
     // Converts to radians. Used for compass image rotation
-    var toRadians: CGFloat {
-        return CGFloat(self * .pi / 180)
-    }
-//    var toDegrees: CGFloat { return CGFloat(self * 180 / .pi) }
+    var degreesToRadians: Self { return self * .pi / 180 }
 }
 
 extension UIImage {
