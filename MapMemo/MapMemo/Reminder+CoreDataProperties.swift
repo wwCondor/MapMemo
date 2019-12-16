@@ -20,13 +20,13 @@ extension Reminder {
         return request
     }
 
-    @NSManaged public var title: String?
+    @NSManaged public var title: String
     @NSManaged public var message: String?
     @NSManaged public var latitude: Double
     @NSManaged public var longitude: Double
+    @NSManaged public var locationName: String
     @NSManaged public var triggerWhenEntering: Bool
     @NSManaged public var isRepeating: Bool
-    @NSManaged public var bubbleColor: String?
+    @NSManaged public var bubbleColor: String
     @NSManaged public var bubbleRadius: Double
-
 }

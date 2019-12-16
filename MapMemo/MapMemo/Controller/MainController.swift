@@ -226,6 +226,7 @@ class MainController: UIViewController {
     
     @objc func presentReminderController(sender: Any?) {
         reminderController.modeSelected = .addReminderMode
+        reminderController.managedObjectContext = self.managedObjectContext
 //        reminderController.modeSelected = .editReminderMode // For testing editMode
         print("Launching ReminderController")
         navigationController?.pushViewController(reminderController, animated: true)

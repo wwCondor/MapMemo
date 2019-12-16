@@ -26,9 +26,10 @@ extension AuthorizationError: LocalizedError {
 
 enum ReminderError: Error {
     case missingTitle
-    case missingMessage // Should this be allowed to be empty?
+    case missingMessage 
     case missingLatitude
     case missingLongitude
+    case missingLocationName
     case invalidLatitude
     case invalidLongitude
     case unableToObtainLocation
@@ -41,9 +42,22 @@ extension ReminderError: LocalizedError {
         case .missingMessage:               return "Woops! You forgot to add a message to your reminder"
         case .missingLatitude:              return "Woops! You forgot to enter a value for the latitude"
         case .missingLongitude:             return "Woops! You forgot to enter a value for the longitude"
+        case .missingLocationName:          return "Woops! The location you entered has no location name"
         case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
         case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
         case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
+        }
+    }
+}
+
+enum NetworkingError: Error {
+    case noConnection
+}
+
+extension NetworkingError: LocalizedError {
+    public var localizedDescription: String {
+        switch self {
+        case .noConnection:                 return "There is no internet connection."
         }
     }
 }

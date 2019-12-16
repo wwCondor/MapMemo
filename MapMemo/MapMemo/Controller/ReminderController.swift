@@ -8,11 +8,13 @@
 
 import UIKit
 import CoreLocation
+import CoreData
 
 // User adds or edits reminder by editing required information:
 class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     var modeSelected: ModeSelected = .addReminderMode
+    var managedObjectContext: NSManagedObjectContext!
     
     var colorSelected = 0
     var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
@@ -20,7 +22,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     var latitudeReceived: Bool = false
     var longitudeReceived: Bool = false
     
-    var radiusInMeters: Int = 50
+    var radiusInMeters: Double = 50
     var previousLocation: CLLocation?
     
     lazy var scrollView: UIScrollView = {
@@ -343,26 +345,33 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     @objc func setBubbleRadius(_ sender: UISlider) { // thumb size = 30x30
         view.endEditing(true)
         sender.value = roundf(sender.value) // this allows thumb to snap between values
-        let radiiInMeters: [Float] = [10, 25, 50, 100, 500, 1000, 5000]
-        let radiusSelected = Int(radiiInMeters[Int(roundf(sender.value))])
+        let radiiInMeters: [Double] = [10, 25, 50, 100, 500, 1000, 5000]
+        let radiusSelected = Double(radiiInMeters[Int(roundf(sender.value))])
         radiusInMeters = radiusSelected
         bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected)m"
     }
     
     private func checkCoordinateInput() {
-        if latitudeReceived == true && longitudeReceived == true {
-            // If both are true we try to obtain location from coordinates
-            guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
-            let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
-            getLocationName(location: location)
-        } else {
-            if latitudeReceived == false && longitudeReceived == true {
-                locationInfoField.text = PlaceHolderText.locationLatitude
-            } else if latitudeReceived == true && longitudeReceived == false {
-                locationInfoField.text = PlaceHolderText.locationLongitude
-            } else if latitudeReceived == false && longitudeReceived == false {
-                locationInfoField.text = PlaceHolderText.location
+        let connectionAvailable = Reachability.checkReachable()
+        
+        if connectionAvailable == true {
+            if latitudeReceived == true && longitudeReceived == true {
+                // If both are true we try to obtain location from coordinates
+                guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
+                let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+                getLocationName(location: location)
+            } else {
+                if latitudeReceived == false && longitudeReceived == true {
+                    locationInfoField.text = PlaceHolderText.locationLatitude
+                } else if latitudeReceived == true && longitudeReceived == false {
+                    locationInfoField.text = PlaceHolderText.locationLongitude
+                } else if latitudeReceived == false && longitudeReceived == false {
+                    locationInfoField.text = PlaceHolderText.location
+                }
             }
+        } else {
+            presentAlert(description: NetworkingError.noConnection.localizedDescription, viewController: self)
+            locationInfoField.text = "There is no internet connection./nUnable to obtain location name"
         }
     }
     
@@ -426,7 +435,12 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
                 locationName = "\(addressInformation) \(city) \(countryInformation)"
             }
             
-            self.locationInfoField.text = locationName
+            if locationName != "" {
+                self.locationInfoField.text = locationName
+            } else {
+                self.locationInfoField.text = "Location Unknown"
+            }
+            
         }
     }
     
@@ -465,15 +479,52 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         dismiss(animated: true, completion: nil)
     }
     
+    // MARK: Delete
     @objc private func deleteReminder(sender: UIButton!) {
         print("Reminder Deleted")
         navigationController?.popViewController(animated: true)
         dismiss(animated: true, completion: nil)
     }
     
+    // MARK: Save
     @objc private func saveReminder(sender: UIButton!) {
         if modeSelected == .addReminderMode {
-            print("Reminder Saved")
+            guard let title = titleInputField.text, !title.isEmpty, title != PlaceHolderText.title else {
+                presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+                return
+            }
+            guard let message = messageInputField.text, !message.isEmpty, message != PlaceHolderText.message else {
+                presentAlert(description: ReminderError.missingMessage.localizedDescription, viewController: self)
+                return
+            }
+            guard let latitude = latitudeInputField.text, !latitude.isEmpty, latitude != PlaceHolderText.message else {
+                presentAlert(description: ReminderError.missingLatitude.localizedDescription, viewController: self)
+                return
+            }
+            guard let longitude = longitudeInputField.text, !longitude.isEmpty, longitude != PlaceHolderText.message else {
+                presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
+                return
+            }
+            guard let locationName = locationInfoField.text, !locationName.isEmpty else {
+                presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+                return
+            }
+            
+            let reminder = NSEntityDescription.insertNewObject(forEntityName: "Reminder", into: managedObjectContext) as! Reminder
+            
+            reminder.title = title
+            reminder.message = message
+            reminder.latitude = latitude.doubleValue
+            reminder.longitude = longitude.doubleValue
+            reminder.locationName = locationName
+            reminder.triggerWhenEntering = triggerToggle.isOn
+            reminder.isRepeating = repeatToggle.isOn
+            reminder.bubbleColor = bubbleColors[colorSelected]
+            reminder.bubbleRadius = Double(radiusInMeters)
+            
+            reminder.managedObjectContext?.saveChanges()
+            
+            print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
             print("Edits to Reminder Saved")
         }
