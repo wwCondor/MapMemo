@@ -26,18 +26,24 @@ extension AuthorizationError: LocalizedError {
 
 enum ReminderError: Error {
     case missingTitle
-//    case missingMessage // Should this be allowed to be empty?
+    case missingMessage // Should this be allowed to be empty?
     case missingLatitude
     case missingLongitude
+    case invalidLatitude
+    case invalidLongitude
+    case unableToObtainLocation
 }
 
 extension ReminderError: LocalizedError {
     public var localizedDescription: String {
         switch self {
-        case .missingTitle:                 return "Woops! It seems you forgot to enter a title"
-//        case .missingMessage:               return ""
-        case .missingLatitude:              return "Woops! It seems you forgot to enter a value for the latitude"
-        case .missingLongitude:             return "Woops! It seems you forgot to enter a value for the longitude"
+        case .missingTitle:                 return "Woops! You forgot to add a title to your reminder"
+        case .missingMessage:               return "Woops! You forgot to add a message to your reminder"
+        case .missingLatitude:              return "Woops! You forgot to enter a value for the latitude"
+        case .missingLongitude:             return "Woops! You forgot to enter a value for the longitude"
+        case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
+        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
+        case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
         }
     }
 }

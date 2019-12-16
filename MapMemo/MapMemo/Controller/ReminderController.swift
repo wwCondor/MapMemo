@@ -21,6 +21,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     var longitudeReceived: Bool = false
     
     var radiusInMeters: Int = 50
+    var previousLocation: CLLocation?
     
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView(frame: .zero)
@@ -29,10 +30,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         scrollView.layer.borderColor = ColorSet.objectColor.cgColor
         scrollView.layer.borderWidth = Constant.borderWidth
         scrollView.contentSize.height = Constant.inputFieldSize*10
-//        scrollView.isUserInteractionEnabled = true
-//        scrollView.isScrollEnabled = true
         scrollView.bounces = true
-//        scrollView.delegate = self
         scrollView.autoresizingMask = .flexibleHeight
         scrollView.showsVerticalScrollIndicator = true
         return scrollView
@@ -176,6 +174,8 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        self.hideKeyboardOnBackgroundTap()
+        
         titleInputField.delegate = self
         messageInputField.delegate = self
         latitudeInputField.delegate = self
@@ -310,7 +310,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     // MARK: Toggles
     @objc func toggleTriggerMode(sender: UITapGestureRecognizer) {
-//        print("Toggle ze trigger mode")
+        view.endEditing(true)
         triggerToggle.viewTapped()
         if triggerToggle.isOn == true {
             triggerInfoField.text = ToggleText.enteringTrigger
@@ -320,7 +320,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     }
     
     @objc func toggleRepeatMode(sender: UITapGestureRecognizer) {
-//        print("Toggle ze repeat mode")
+        view.endEditing(true)
         repeatToggle.viewTapped()
         if repeatToggle.isOn == true {
             repeatOrNotInfoField.text = ToggleText.isRepeating
@@ -330,6 +330,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     }
     
     @objc func toggleColor(sender: UITapGestureRecognizer) {
+        view.endEditing(true)
         if colorSelected != bubbleColors.count - 1 {
             colorSelected += 1
         } else if colorSelected == bubbleColors.count - 1 {
@@ -340,11 +341,123 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     }
     
     @objc func setBubbleRadius(_ sender: UISlider) { // thumb size = 30x30
+        view.endEditing(true)
         sender.value = roundf(sender.value) // this allows thumb to snap between values
         let radiiInMeters: [Float] = [10, 25, 50, 100, 500, 1000, 5000]
         let radiusSelected = Int(radiiInMeters[Int(roundf(sender.value))])
         radiusInMeters = radiusSelected
         bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected)m"
+    }
+    
+    private func checkCoordinateInput() {
+        if latitudeReceived == true && longitudeReceived == true {
+            // If both are true we try to obtain location from coordinates
+            guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
+            let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+            getLocationName(location: location)
+        } else {
+            if latitudeReceived == false && longitudeReceived == true {
+                locationInfoField.text = PlaceHolderText.locationLatitude
+            } else if latitudeReceived == true && longitudeReceived == false {
+                locationInfoField.text = PlaceHolderText.locationLongitude
+            } else if latitudeReceived == false && longitudeReceived == false {
+                locationInfoField.text = PlaceHolderText.location
+            }
+        }
+    }
+    
+    private func getLocationName(location: CLLocation) {
+        locationInfoField.text = "Trying to obtain location from coordinates..."
+        let geographicCoder = CLGeocoder()
+        
+//        guard let previousLocation = self.previousLocation else { return }
+//
+//        guard location.distance(from: previousLocation) > 50 else { return }
+//        self.previousLocation = location
+        
+        geographicCoder.reverseGeocodeLocation(location) { [weak self] (placemark, error) in
+            guard let self = self else { return }
+            
+            guard error == nil else {
+                self.presentAlert(description: ReminderError.unableToObtainLocation.localizedDescription, viewController: self)
+                self.locationInfoField.text = "Could not obtain location from current coordinates"
+                return
+            }
+            guard let placemark = placemark?.first else { // country
+                return
+            }
+            print(placemark)
+
+            let inlandWater = placemark.inlandWater ?? ""
+            let ocean = placemark.ocean ?? ""
+            
+            let country = placemark.country ?? ""
+            let countryISO = placemark.isoCountryCode ?? ""
+            var countryInformation = ""
+            if country == "" || countryISO == "" {
+                countryInformation = ""
+            } else {
+                countryInformation = "\(country) (\(countryISO))"
+            }
+            
+            let city = placemark.locality ?? ""
+            
+            let streetName = placemark.thoroughfare ?? ""
+            let streetNumber = placemark.subThoroughfare ?? ""
+            var addressInformation = ""
+            
+            if streetNumber != "" && streetName != "" {
+                addressInformation = "\(streetNumber) \(streetName)"
+            } else if streetNumber == "" && streetName != "" {
+                addressInformation = "\(streetName)"
+            } else {
+                addressInformation = ""
+            }
+            
+            var locationName = ""
+            
+            // Makes sure there is always something sensible displayed
+            // If it is water we have no address and vice versa
+            if inlandWater != ""  {
+                locationName = "\(inlandWater) \(countryInformation)"
+            } else if ocean != "" {
+                locationName = "\(ocean) \(countryInformation)"
+            } else {
+                locationName = "\(addressInformation) \(city) \(countryInformation)"
+            }
+            
+            self.locationInfoField.text = locationName
+        }
+    }
+    
+    private func checkIfInputValid(input: String) -> Bool {
+        // Check if latitude/longitude is valid input
+        var isValid: Bool = false
+
+        let minus: Character = "-"
+        let dot: Character = "."
+
+        let countMinusus = input.filter { $0 == minus }.count
+        let countDots = input.filter { $0 == dot }.count
+        
+        if countMinusus <= 1 && countDots <= 1 {
+            print("Both are 0 or 1")
+            if countMinusus == 1 {
+                if input.first != minus {
+                    // Here we have 1 minus but it is not the first character
+                    isValid = false
+                } else {
+                    isValid = true
+                }
+            } else {
+                isValid = true
+            }
+        } else if countMinusus > 1 || countDots > 1 {
+            print("Number of dots: \(countDots). Number of minusus: \(countMinusus)")
+            isValid = false
+        }
+
+        return isValid
     }
     
     @objc private func cancel() {
@@ -369,37 +482,47 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
 }
 
 extension ReminderController: UITextFieldDelegate {
-    // Makes sure title and/or message input is not to long
+    // Makes sure input is not longer than given max
     // Makes sure latitude/longitude input is limited to certain characters
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        var result = true
-        let maxLengthTitle = 20
-        let maxLengthMessage = 40
+        let maxCharactersIntitle = 20
+        let maxCharactersInMessage = 40
+        let maxCharactersInLatOrLong = 10
         
-        var currentString: NSString = ""
+        let allowedCharacters = CharacterSet(charactersIn: "1234567890.-")//.inverted // This would be opposite
         
         switch textField {
         case titleInputField:
-            currentString = titleInputField.text! as NSString
+            let currentString = titleInputField.text! as NSString
             let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
-            result = newString.length <= maxLengthTitle
+            return newString.length <= maxCharactersIntitle
         case messageInputField:
-            currentString = messageInputField.text! as NSString
+            let currentString = messageInputField.text! as NSString
             let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
-            result = newString.length <= maxLengthMessage
-        case latitudeInputField, longitudeInputField:
-            if string.count > 0 {
-                let allowedCharacters = NSCharacterSet(charactersIn: "1234567890.-")//.inverted // This would be opposite
-                let stringWithOnlyAllowedCharacters = string.rangeOfCharacter(from: allowedCharacters as CharacterSet) != nil
-                result = stringWithOnlyAllowedCharacters
+            return newString.length <= maxCharactersInMessage
+        case latitudeInputField:
+            let currentString = latitudeInputField.text! as NSString
+            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
+                return newString.length <= maxCharactersInLatOrLong
+            } else {
+                return true
+            }
+        case longitudeInputField:
+            let currentString = longitudeInputField.text! as NSString
+            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
+                return newString.length <= maxCharactersInLatOrLong
+            } else {
+                return true
             }
         default:
-            break
+            return true // Allows backspace
         }
-        return result
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.becomeFirstResponder() // show Keyboard when user taps textField
         // If current text is placeholder text, reset it to ""
         guard let text = textField.text else { return }
 
@@ -424,93 +547,71 @@ extension ReminderController: UITextFieldDelegate {
         }
     }
     
-    func getLocationName(location: CLLocation) {
-        locationInfoField.text = "Trying to obtain location from coordinates..."
-        let geographicCoder = CLGeocoder()
-        
-        geographicCoder.reverseGeocodeLocation(location) { (placemark, error) in
-            guard error == nil else {
-                self.locationInfoField.text = "Could not obtain location from current coordinates"
-                return
-            }
-            guard let placemark = placemark?.first else { // country
-                return
-            }
-            guard let locality = placemark.locality else { // city
-                return
-            }
-            guard let thoroughfare = placemark.thoroughfare else { // street
-                return
-            }
-//            let locationName = "\(locality)"
-            print(placemark)
-            let locationName = "\(thoroughfare), \(locality)"
-            self.locationInfoField.text = locationName
-        }
-    }
-    
-    func checkCoordinateInput() {
-        if latitudeReceived == true && longitudeReceived == true {
-            // If both are true we try to obtain location from coordinates
-            guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
-            let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
-            getLocationName(location: location)
-        } else {
-            if latitudeReceived == false && longitudeReceived == true {
-                locationInfoField.text = PlaceHolderText.locationLatitude
-            } else if latitudeReceived == true && longitudeReceived == false {
-                locationInfoField.text = PlaceHolderText.locationLongitude
-            } else if latitudeReceived == false && longitudeReceived == false {
-                locationInfoField.text = PlaceHolderText.location
-            }
-        }
-    }
-    
     func textFieldDidEndEditing(_ textField: UITextField) {
+        // If input field is empty, placeholder text is restored
+        // If value for latitude/longitude isValid but outside allowed range, outer range limit it displayed
+        textField.resignFirstResponder()
             guard let input = textField.text else { return }
         
             switch textField {
             case titleInputField:
-                if textField.text!.isEmpty {
-                    presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+                if input.isEmpty {
+                    titleInputField.text = PlaceHolderText.title
                 }
             case messageInputField:
-                if textField.text!.isEmpty {
-                    print("Seems there is not message added to the reminder but maybe that's ok")
-//                    presentAlert(description: ReminderError.missingMessage.localizedDescription, viewController: self)
+                if input.isEmpty {
+                    messageInputField.text = PlaceHolderText.message
                 }
             case latitudeInputField:
                 latitudeReceived = false
-                if textField.text!.isEmpty {
-                    presentAlert(description: ReminderError.missingLatitude.localizedDescription, viewController: self)
+                if input.isEmpty {
+                    latitudeInputField.text = PlaceHolderText.latitude
                     latitudeReceived = false
                 } else {
-                    let latitudeLimit: Float = 90
-                    if input.floatValue < -latitudeLimit {
-                        textField.text = "-90"
-                    } else if input.floatValue > latitudeLimit {
-                        textField.text = "90"
+                    if checkIfInputValid(input: input) == false {
+                        presentAlert(description: ReminderError.invalidLatitude.localizedDescription, viewController: self)
+                        latitudeInputField.text = PlaceHolderText.latitude
+                        latitudeReceived = false
+                    } else {
+                        let latitudeLimit: Float = 90
+                        if input.floatValue < -latitudeLimit {
+                            textField.text = "-90"
+                        } else if input.floatValue > latitudeLimit {
+                            textField.text = "90"
+                        }
+                        latitudeReceived = true
                     }
-                    latitudeReceived = true
                 }
                 checkCoordinateInput()
             case longitudeInputField:
                 longitudeReceived = false
-                if textField.text!.isEmpty {
-                    presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
+                if input.isEmpty {
+                    longitudeInputField.text = PlaceHolderText.longitude
                     longitudeReceived = false
                 } else {
-                    let longitudeLimit: Float = 180
-                    if input.floatValue < -longitudeLimit {
-                        textField.text = "-180"
-                    } else if input.floatValue > longitudeLimit {
-                        textField.text = "180"
+                    if checkIfInputValid(input: input) == false {
+                        presentAlert(description: ReminderError.invalidLongitude.localizedDescription, viewController: self)
+                        longitudeInputField.text = PlaceHolderText.longitude
+                        longitudeReceived = false
+                    } else {
+                        let longitudeLimit: Float = 180
+                        if input.floatValue < -longitudeLimit {
+                            textField.text = "-180"
+                        } else if input.floatValue > longitudeLimit {
+                            textField.text = "180"
+                        }
+                        longitudeReceived = true
                     }
-                    longitudeReceived = true
                 }
                 checkCoordinateInput()
             default:
                 break
             }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Dismiss Keyboard if "return" pressed
+        textField.resignFirstResponder()
+        return true
     }
 }
