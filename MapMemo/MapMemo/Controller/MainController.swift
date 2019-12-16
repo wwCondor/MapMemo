@@ -42,9 +42,11 @@ class MainController: UIViewController {
         let image = UIImage(named: Icon.compassIcon.name)?.withRenderingMode(.alwaysTemplate)
         let compass = UIImageView(image: image)
         compass.translatesAutoresizingMaskIntoConstraints = false
-        compass.backgroundColor = UIColor.clear
-        compass.tintColor = ColorSet.objectColor
-        compass.alpha = 0.8
+//        compass.layer.cornerRadius = Constant.compassCornerRadius
+//        compass.layer.masksToBounds = true
+        compass.backgroundColor = .clear
+        compass.tintColor = ColorSet.tintColor
+        compass.alpha = 0.70
         return compass
     }()
     
@@ -128,8 +130,8 @@ class MainController: UIViewController {
             
             compass.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: Constant.offset),
             compass.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constant.offset),
-            compass.widthAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
-            compass.heightAnchor.constraint(equalToConstant: Constant.buttonBarHeight),
+            compass.widthAnchor.constraint(equalToConstant: Constant.compassSize),
+            compass.heightAnchor.constraint(equalToConstant: Constant.compassSize),
             
             settingsShortcut.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constant.offset),
             settingsShortcut.bottomAnchor.constraint(equalTo: addButton.topAnchor, constant: -Constant.offset),

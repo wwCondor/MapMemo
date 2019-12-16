@@ -9,12 +9,15 @@
 import UIKit
 
 struct Constant {
-    static let buttonBarHeight: CGFloat = 60 // height of buttons/buttonbars
-    static let largeTextInset: CGFloat  = 6
-    static let smallTextInset: CGFloat  = 2
-    static let borderWidth: CGFloat     = 2
-    static let inputFieldSize: CGFloat  = 85
-    static let offset: CGFloat          = Constant.inputFieldSize/4
+    static let buttonBarHeight: CGFloat     = 60 // height of buttons/buttonbars
+    static let largeTextInset: CGFloat      = 10
+    static let smallTextInset: CGFloat      = 2
+    static let borderWidth: CGFloat         = 2
+    static let inputFieldSize: CGFloat      = 85
+    static let offset: CGFloat              = Constant.inputFieldSize/4
+    static let compassSize: CGFloat         = Constant.buttonBarHeight
+    static let compassCornerRadius: CGFloat = Constant.buttonBarHeight/2
+    static let cellPadding: CGFloat         = Constant.inputFieldSize/8
 }
 
 struct PlaceHolderText {
@@ -23,10 +26,11 @@ struct PlaceHolderText {
     static let latitude: String           = "Enter a Latitude"
     static let longitude: String          = "Enter a Longitude"
     static let location: String           = "Enter latitude and longitude to show location"
+    static let unknownLocation: String    = "Unknown Location"
     static let locationLatitude: String   = "Enter latitude to show location"
     static let locationLongitude: String  = "Enter longitude to show location"
     static let bubbleColor: String        = "Bubble Color"
-//    static let bubbleRadius: String     = "Bubble Radius: 50m"
+    static let defaultRadius: String      = "50m"
 }
 
 struct ToggleText {

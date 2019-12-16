@@ -16,6 +16,7 @@ enum Icon {
     case saveIcon
     case compassIcon
     case settingsIcon
+    case arrowIcon
 
     var name: String {
         switch self {
@@ -26,6 +27,7 @@ enum Icon {
         case .saveIcon:              return "SaveIcon"
         case .compassIcon:           return "CompassIcon"
         case .settingsIcon:          return "SettingsIcon"
+        case .arrowIcon:             return "ArrowIcon"
         }
     }
 }

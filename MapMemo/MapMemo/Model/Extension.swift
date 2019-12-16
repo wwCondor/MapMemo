@@ -52,10 +52,19 @@ extension UIViewController {
     }
 }
 
-
-//extension CGFloat {
-//  var toRadians: CGFloat { return self * .pi / 180 }
-//  var toDegrees: CGFloat { return self * 180 / .pi }
+//extension UIView {
+//    // Used for setting constraint 
+//    public func addConstraintsWithFormat(_ format: String, views: UIView...) {
+//        var viewsDictionary = [String: UIView]()
+//
+//        for (index, view) in views.enumerated() {
+//            let key = "v\(index)"
+//            view.translatesAutoresizingMaskIntoConstraints = false
+//            viewsDictionary[key] = view
+//        }
+//
+//       addConstraints(NSLayoutConstraint.constraints(withVisualFormat: format, options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: viewsDictionary))
+//    }
 //}
 
 extension FloatingPoint {

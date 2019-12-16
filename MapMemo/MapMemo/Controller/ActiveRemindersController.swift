@@ -10,11 +10,6 @@ import UIKit
 import CoreData
 // tableView that holds all current active reminders
 // tapping a reminder name presents editReminderController
-
-class ReminderCell: UITableViewCell {
-
-}
-
 class ActiveRemindersController: UIViewController {
     
     let reminderController = ReminderController()
@@ -25,8 +20,8 @@ class ActiveRemindersController: UIViewController {
     
     lazy var activeReminders: UITableView = {
         let activeReminders = UITableView(frame: view.frame)
-        activeReminders.backgroundColor = UIColor.yellow
-        activeReminders.register(UITableViewCell.self, forCellReuseIdentifier: cellId)
+        activeReminders.backgroundColor = UIColor.clear
+        activeReminders.register(ReminderCell.self, forCellReuseIdentifier: cellId)
         activeReminders.dataSource = self
         activeReminders.delegate = self
         activeReminders.translatesAutoresizingMaskIntoConstraints = false
@@ -89,17 +84,24 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         }    }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath)
-        cell.backgroundColor = UIColor.red
+        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ReminderCell
+        cell.backgroundColor = ColorSet.appBackgroundColor
+//        cell.layer.masksToBounds = true
+        cell.layer.borderColor = ColorSet.tintColor.cgColor
+        cell.layer.borderWidth = Constant.borderWidth
         cell.selectionStyle = .none
         
-        if reminders.count == 0 {
-            cell.textLabel!.text = "loading data..."
-        } else {
-            let reminder = reminders[indexPath.row]
-            cell.textLabel!.text = reminder.title
-        }
+//        if reminders.count == 0 {
+//            cell.textLabel!.text = "loading data..."
+//        } else {
+//            let reminder = reminders[indexPath.row]
+//            cell.textLabel!.text = reminder.title
+//        }
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return Constant.inputFieldSize// + Constant.cellSpacing
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {

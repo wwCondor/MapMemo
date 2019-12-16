@@ -32,6 +32,7 @@
 		0BA9CF35239FBCA900ACB8E3 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF34239FBCA900ACB8E3 /* Error.swift */; };
 		0BA9CF37239FBE0200ACB8E3 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF36239FBE0200ACB8E3 /* Extension.swift */; };
 		0BC7488523A7CD4700AFB3B5 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC7488423A7CD4700AFB3B5 /* Reachability.swift */; };
+		0BC7488723A80B6C00AFB3B5 /* ReminderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC7488623A80B6C00AFB3B5 /* ReminderCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,7 @@
 		0BA9CF34239FBCA900ACB8E3 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		0BA9CF36239FBE0200ACB8E3 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		0BC7488423A7CD4700AFB3B5 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		0BC7488623A80B6C00AFB3B5 /* ReminderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -131,6 +133,7 @@
 				0BA9CF2B239E738100ACB8E3 /* CustomButton.swift */,
 				0B11C07A23A26A4100E81DAA /* TextInputField.swift */,
 				0B11C07E23A39B1E00E81DAA /* TapToggleView.swift */,
+				0BC7488623A80B6C00AFB3B5 /* ReminderCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				0BA9CF1C239E6BA100ACB8E3 /* MapMemoStub.swift in Sources */,
 				0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */,
 				0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */,
+				0BC7488723A80B6C00AFB3B5 /* ReminderCell.swift in Sources */,
 				0B11C07923A12D5400E81DAA /* ModeSelected.swift in Sources */,
 				0BC7488523A7CD4700AFB3B5 /* Reachability.swift in Sources */,
 				0B11C08223A5077E00E81DAA /* Reminder+CoreDataClass.swift in Sources */,

@@ -68,40 +68,40 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return saveButton
     }()
     
-    lazy var titleInputField: TextInputField = {
-        let titleInputField = TextInputField()
+    lazy var titleInputField: CustomTextField = {
+        let titleInputField = CustomTextField()
         titleInputField.text = PlaceHolderText.title
         titleInputField.layer.borderWidth = 0
         return titleInputField
     }() // MARK: reminder.title = titleInputField.text
     
-    lazy var messageInputField: TextInputField = {
-        let messageInputField = TextInputField()
+    lazy var messageInputField: CustomTextField = {
+        let messageInputField = CustomTextField()
         messageInputField.text = PlaceHolderText.message
         return messageInputField
     }() // MARK: reminder.message = messageInputField.text
     
-    lazy var latitudeInputField: TextInputField = {
-        let latitudeInfoField = TextInputField()
+    lazy var latitudeInputField: CustomTextField = {
+        let latitudeInfoField = CustomTextField()
         latitudeInfoField.text = PlaceHolderText.latitude
         return latitudeInfoField
     }() // MARK: reminder.latitude = latitudeInputField.text save as Float!
     
-    lazy var longitudeInputField: TextInputField = {
-        let longitudeInfoField = TextInputField()
+    lazy var longitudeInputField: CustomTextField = {
+        let longitudeInfoField = CustomTextField()
         longitudeInfoField.text = PlaceHolderText.longitude
         return longitudeInfoField
     }() // MARK: reminder.longitude = longitudeInputField.text save as Float!
     
-    lazy var locationInfoField: TextInputField = {
-        let locationInfoField = TextInputField()
+    lazy var locationInfoField: CustomTextField = {
+        let locationInfoField = CustomTextField()
         locationInfoField.isUserInteractionEnabled = false
         locationInfoField.text = PlaceHolderText.location
         return locationInfoField
     }()
     
-    lazy var triggerInfoField: TextInputField = {
-        let triggerInfoField = TextInputField()
+    lazy var triggerInfoField: CustomTextField = {
+        let triggerInfoField = CustomTextField()
         triggerInfoField.text = ToggleText.leavingTrigger
         return triggerInfoField
     }()
@@ -114,8 +114,8 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
 
     }()
     
-    lazy var repeatOrNotInfoField: TextInputField = {
-        let repeatOrNotInfoField = TextInputField()
+    lazy var repeatOrNotInfoField: CustomTextField = {
+        let repeatOrNotInfoField = CustomTextField()
         repeatOrNotInfoField.text = ToggleText.isNotRepeating
         return repeatOrNotInfoField
     }()
@@ -127,8 +127,8 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return repeatToggle // MARK: reminder.isRepeating = repeatToggle.isOn
     }()
     
-    lazy var bubbleColorInfoField: TextInputField = {
-        let bubbleColorInfoField = TextInputField()
+    lazy var bubbleColorInfoField: CustomTextField = {
+        let bubbleColorInfoField = CustomTextField()
         bubbleColorInfoField.text = PlaceHolderText.bubbleColor
         return bubbleColorInfoField
     }()
@@ -152,8 +152,8 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return bubbleColorView
     }()
     
-    lazy var bubbleRadiusInfoField: TextInputField = {
-        let bubbleRadiusInfoField = TextInputField()
+    lazy var bubbleRadiusInfoField: CustomTextField = {
+        let bubbleRadiusInfoField = CustomTextField()
         bubbleRadiusInfoField.isUserInteractionEnabled = false
         bubbleRadiusInfoField.text = "Bubble radius: \(radiusInMeters)m"
         return bubbleRadiusInfoField
