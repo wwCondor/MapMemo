@@ -15,6 +15,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     var modeSelected: ModeSelected = .addReminderMode
     var managedObjectContext: NSManagedObjectContext!
+    var reminder: Reminder?
     
     var colorSelected = 0
     var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
@@ -526,6 +527,10 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
+//            if let reminder = reminder
+            
+            
+            
             print("Edits to Reminder Saved")
         }
         navigationController?.popViewController(animated: true)

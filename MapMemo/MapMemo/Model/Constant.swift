@@ -31,6 +31,8 @@ struct PlaceHolderText {
     static let locationLongitude: String  = "Enter longitude to show location"
     static let bubbleColor: String        = "Bubble Color"
     static let defaultRadius: String      = "50m"
+    static let isRepeating: String        = "Repeat Reminder"
+    static let notRepeating: String       = "Repeat Once"
 }
 
 struct ToggleText {

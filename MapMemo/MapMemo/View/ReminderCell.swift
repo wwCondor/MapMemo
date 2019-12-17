@@ -28,18 +28,19 @@ class ReminderCell: UITableViewCell {
     
     lazy var titleInfoField: InfoField = {
         let titleInfoField = InfoField()
+        titleInfoField.font = UIFont.systemFont(ofSize: 13.0, weight: .semibold)
         titleInfoField.isUserInteractionEnabled = false
         titleInfoField.text = PlaceHolderText.title
         return titleInfoField
     }()
     
-//    lazy var messageInfoField: InfoField = {
-//        let messageInfoField = InfoField()
-//        messageInfoField.textAlignment = .left
-//        messageInfoField.isUserInteractionEnabled = false
-//        messageInfoField.text = PlaceHolderText.message
-//        return messageInfoField
-//    }()
+    lazy var recurringInfoField: InfoField = {
+        let recurringInfoField = InfoField()
+        recurringInfoField.textAlignment = .center
+        recurringInfoField.isUserInteractionEnabled = false
+        recurringInfoField.text = PlaceHolderText.isRepeating
+        return recurringInfoField
+    }()
     
     lazy var locationInfoField: InfoField = {
         let locationInfoField = InfoField()
@@ -93,6 +94,7 @@ class ReminderCell: UITableViewCell {
 //        contentView.backgroundColor = .clear
         
         contentView.addSubview(titleInfoField)
+        contentView.addSubview(recurringInfoField)
         contentView.addSubview(locationInfoField)
         contentView.addSubview(radiusInfoField)
         contentView.addSubview(bubbleColorView)
@@ -105,6 +107,11 @@ class ReminderCell: UITableViewCell {
             titleInfoField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             titleInfoField.widthAnchor.constraint(equalToConstant: contentView.frame.width/2),
             titleInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
+            
+            recurringInfoField.topAnchor.constraint(equalTo: contentView.topAnchor),
+            recurringInfoField.leadingAnchor.constraint(equalTo: titleInfoField.trailingAnchor),
+            recurringInfoField.trailingAnchor.constraint(equalTo: locationInfoField.trailingAnchor),
+            recurringInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
             
             locationInfoField.topAnchor.constraint(equalTo: titleInfoField.bottomAnchor),
             locationInfoField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),

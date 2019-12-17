@@ -14,6 +14,12 @@ class ActiveRemindersController: UIViewController {
     
     let reminderController = ReminderController()
     
+    var managedObjectContext: NSManagedObjectContext! // MARK: Added - Test
+    
+    lazy var fetchedResultsController: FetchedResultsController = { // MARK: Added - Test
+        return FetchedResultsController(managedObjectContext: self.managedObjectContext, tableView: self.activeReminders, request: Reminder.fetchRequest())
+    }()
+    
     var reminders: [MapMemoStub] = [] // MARK: Test
     
     let cellId = "cellId"
@@ -31,6 +37,8 @@ class ActiveRemindersController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        fetchedResultsController.delegate = fetchedResultsController
+
         view.backgroundColor = ColorSet.appBackgroundColor
         
         setupView()
@@ -69,34 +77,58 @@ class ActiveRemindersController: UIViewController {
     }
 }
 
+//reminderController.modeSelected = .addReminderMode
+//reminderController.managedObjectContext = self.managedObjectContext
 
 extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         reminderController.modeSelected = .editReminderMode
+        reminderController.managedObjectContext = self.managedObjectContext // MARK: Added - Test
         navigationController?.pushViewController(reminderController, animated: true)
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if reminders.count == 0 {
-            return 1
-        } else {
-            return reminders.count
-        }    }
+        guard let section = fetchedResultsController.sections?[section] else {
+            return 0
+        }
+        
+        return section.numberOfObjects
+//        if reminders.count == 0 {
+//            return 1
+//        } else {
+//            return reminders.count
+//        }
+    }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ReminderCell
+        let entry = fetchedResultsController.object(at: indexPath)
+        let cell = activeReminders.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ReminderCell
         cell.backgroundColor = ColorSet.appBackgroundColor
 //        cell.layer.masksToBounds = true
-        cell.layer.borderColor = ColorSet.tintColor.cgColor
+        cell.layer.borderColor = ColorSet.objectColor.cgColor
         cell.layer.borderWidth = Constant.borderWidth
         cell.selectionStyle = .none
         
-//        if reminders.count == 0 {
-//            cell.textLabel!.text = "loading data..."
-//        } else {
-//            let reminder = reminders[indexPath.row]
-//            cell.textLabel!.text = reminder.title
-//        }
+        cell.titleInfoField.text = entry.title
+        
+        cell.locationInfoField.text = entry.locationName
+        
+        if entry.triggerWhenEntering == true {
+            cell.arrowImage.transform = CGAffineTransform.identity
+        } else if entry.triggerWhenEntering == false {
+            cell.arrowImage.transform = CGAffineTransform(rotationAngle: .pi)
+        }
+        
+        if entry.isRepeating == true {
+            cell.recurringInfoField.text = PlaceHolderText.isRepeating
+        } else if entry.isRepeating == false {
+            cell.recurringInfoField.text = PlaceHolderText.notRepeating
+        }
+        
+        cell.bubbleColorView.backgroundColor = UIColor(named: entry.bubbleColor)!.withAlphaComponent(0.7)
+        cell.bubbleColorView.layer.borderColor = UIColor(named: entry.bubbleColor)?.cgColor
+        
+        cell.radiusInfoField.text = "\(Int(entry.bubbleRadius))m"
         return cell
     }
     

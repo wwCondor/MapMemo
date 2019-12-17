@@ -227,15 +227,16 @@ class MainController: UIViewController {
     }
     
     @objc func presentReminderController(sender: Any?) {
+        print("Launching ReminderController")
         reminderController.modeSelected = .addReminderMode
         reminderController.managedObjectContext = self.managedObjectContext
 //        reminderController.modeSelected = .editReminderMode // For testing editMode
-        print("Launching ReminderController")
         navigationController?.pushViewController(reminderController, animated: true)
     }
 
     @objc private func presentActiveRemindersController(sender: UIBarButtonItem) {
         print("Presenting ActiveRemindersController")
+        activeReminderController.managedObjectContext = self.managedObjectContext
         navigationController?.pushViewController(activeReminderController, animated: true)
     }
     

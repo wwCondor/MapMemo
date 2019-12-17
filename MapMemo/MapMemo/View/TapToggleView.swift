@@ -33,5 +33,6 @@ class TapToggleView: UIView {
     
     private func toggleView(bool: Bool) {
         isOn = bool
+        print(isOn)
     }
 }
