@@ -21,8 +21,8 @@ class CustomButton: UIButton {
     
     func setupButton() {
         contentMode = .center
-        backgroundColor = ColorSet.objectColor
-        tintColor = ColorSet.tintColor
+        backgroundColor = UIColor(named: .objectColor)
+        tintColor = UIColor(named: .tintColor)
         imageView?.contentMode = .scaleAspectFit
         translatesAutoresizingMaskIntoConstraints = false
     }

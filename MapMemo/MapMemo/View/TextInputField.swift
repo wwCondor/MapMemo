@@ -24,8 +24,8 @@ class CustomTextField: UITextField {
     
     func setupView() {
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = ColorSet.appBackgroundColor
-        textColor = ColorSet.tintColor
+        backgroundColor = UIColor(named: .appBackgroundColor)
+        textColor = UIColor(named: .tintColor)
         keyboardAppearance = .dark
         returnKeyType = UIReturnKeyType.done
     }
@@ -33,7 +33,7 @@ class CustomTextField: UITextField {
     func additionalSettings() {
         textAlignment = .center
         layer.borderWidth = Constant.borderWidth
-        layer.borderColor = ColorSet.objectColor.cgColor
+        layer.borderColor = UIColor(named: .objectColor)?.cgColor
         font = UIFont.systemFont(ofSize: 15.0, weight: .semibold)
     }
 }

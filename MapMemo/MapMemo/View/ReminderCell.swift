@@ -38,14 +38,14 @@ class ReminderCell: UITableViewCell {
         let recurringInfoField = InfoField()
         recurringInfoField.textAlignment = .center
         recurringInfoField.isUserInteractionEnabled = false
-        recurringInfoField.text = PlaceHolderText.isRepeating
+        recurringInfoField.text = ToggleText.isRepeating
         return recurringInfoField
     }()
     
     lazy var locationInfoField: InfoField = {
         let locationInfoField = InfoField()
         locationInfoField.isUserInteractionEnabled = false
-        locationInfoField.text = PlaceHolderText.unknownLocation
+        locationInfoField.text = PlaceHolderText.location
         return locationInfoField 
     }()
     
@@ -65,7 +65,7 @@ class ReminderCell: UITableViewCell {
         bubbleColorView.backgroundColor = UIColor(named: Color.bubbleBlue.name)!.withAlphaComponent(0.7)
         bubbleColorView.layer.borderWidth = 3
         bubbleColorView.layer.borderColor = UIColor(named: Color.bubbleBlue.name)?.cgColor
-        bubbleColorView.layer.cornerRadius = Constant.inputFieldSize/4 // Set later?
+        bubbleColorView.layer.cornerRadius = Constant.activeReminderCellSize/4 // Set later?
         return bubbleColorView
     }()
     
@@ -74,7 +74,7 @@ class ReminderCell: UITableViewCell {
         let arrowImage = UIImageView(image: arrowIcon)
 //        arrowImage.transform = CGAffineTransform(rotationAngle: .pi) // Rotated 180 degrees
         arrowImage.transform = CGAffineTransform.identity // Original direction
-        arrowImage.tintColor = ColorSet.tintColor
+        arrowImage.tintColor = UIColor(named: .tintColor)
         arrowImage.backgroundColor = .clear
         arrowImage.alpha = 0.70
         arrowImage.contentMode = .scaleAspectFit
@@ -88,6 +88,15 @@ class ReminderCell: UITableViewCell {
         touchScreen.backgroundColor = UIColor.clear
         return touchScreen
     }()
+    
+    func startAnimation() {
+        UIView.animate(withDuration: 1.8,
+                       delay: 0,
+                       options: [.repeat, .autoreverse],
+                       animations: {
+                        self.arrowImage.center.x += Constant.arrowOffset
+        }, completion: nil)
+    }
     
     func setupViews() {
         contentView.addSubview(titleInfoField)
@@ -112,7 +121,7 @@ class ReminderCell: UITableViewCell {
             
             locationInfoField.topAnchor.constraint(equalTo: titleInfoField.bottomAnchor),
             locationInfoField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            locationInfoField.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: -Constant.offset),
+            locationInfoField.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: -Constant.activeReminderOffset),
             locationInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
             
             radiusInfoField.leadingAnchor.constraint(equalTo: locationInfoField.trailingAnchor),
@@ -121,27 +130,20 @@ class ReminderCell: UITableViewCell {
             radiusInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/4),
             radiusInfoField.centerXAnchor.constraint(equalTo: bubbleColorView.centerXAnchor),
             
-            bubbleColorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constant.offset),
-            bubbleColorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constant.offset),
-            bubbleColorView.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
-            bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
+            bubbleColorView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Constant.activeReminderOffset),
+            bubbleColorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constant.activeReminderOffset),
+            bubbleColorView.widthAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/2),
+            bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/2),
             
             arrowImage.centerYAnchor.constraint(equalTo: bubbleColorView.centerYAnchor),
-            arrowImage.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: Constant.arrowAnimationOffset),
-            arrowImage.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/4),
-            arrowImage.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/4),
+            arrowImage.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: Constant.arrowOffset),
+            arrowImage.widthAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/4),
+            arrowImage.heightAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/4),
             
             touchScreen.topAnchor.constraint(equalTo: contentView.topAnchor),
             touchScreen.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             touchScreen.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             touchScreen.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-        
-        UIView.animate(withDuration: 1.5,
-                       delay: 0,
-                       options: [.repeat, .autoreverse],
-                       animations: {
-                        self.arrowImage.center.x += Constant.arrowAnimationOffset
-        }, completion: nil)
     }
 }

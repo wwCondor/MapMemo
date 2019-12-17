@@ -33,8 +33,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
 //        createLocalNotification(notificationType: "Whatever")
 
-        navigationBarAppearance.barTintColor = ColorSet.objectColor // Bar background color
-        navigationBarAppearance.tintColor = ColorSet.tintColor // Tintcolor text and icons
+        navigationBarAppearance.barTintColor = UIColor(named: .objectColor) // Bar background color
+        navigationBarAppearance.tintColor = UIColor(named: .tintColor) // Tintcolor text and icons
         navigationBarAppearance.isTranslucent = false
         
         window = UIWindow(frame: UIScreen.main.bounds)

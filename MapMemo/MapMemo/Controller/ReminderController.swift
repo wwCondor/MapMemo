@@ -8,20 +8,26 @@
 
 import UIKit
 import CoreLocation
+import MapKit
 import CoreData
 
 // User adds or edits reminder by editing required information:
 class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
+    let cellId = "searchResultsId"
+    
     var modeSelected: ModeSelected = .addReminderMode
     var managedObjectContext: NSManagedObjectContext!
     var reminder: Reminder?
     
+    let searchCompleter = MKLocalSearchCompleter()
+    var searchResults = [MKLocalSearchCompletion]()
+    
     var colorSelected = 0
     var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
     
-    var latitudeReceived: Bool = false
-    var longitudeReceived: Bool = false
+//    var latitudeReceived: Bool = false
+//    var longitudeReceived: Bool = false
     
     var radiusInMeters: Double = 50
     var previousLocation: CLLocation?
@@ -29,10 +35,10 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView(frame: .zero)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.backgroundColor = ColorSet.appBackgroundColor
-        scrollView.layer.borderColor = ColorSet.objectColor.cgColor
+        scrollView.backgroundColor = UIColor(named: .appBackgroundColor)
+        scrollView.layer.borderColor = UIColor(named: .objectColor)?.cgColor
         scrollView.layer.borderWidth = Constant.borderWidth
-        scrollView.contentSize.height = Constant.inputFieldSize*10
+        scrollView.contentSize.height = Constant.inputFieldSize*9
         scrollView.bounces = true
         scrollView.autoresizingMask = .flexibleHeight
         scrollView.showsVerticalScrollIndicator = true
@@ -81,28 +87,40 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return messageInputField
     }()
     
+    lazy var locationSearchField: CustomTextField = {
+        let locationSearchField = CustomTextField()
+        locationSearchField.text = PlaceHolderText.location
+        return locationSearchField
+    }()
+    
+    lazy var searchResultsTableView: UITableView = {
+        let searchResultsTableView = UITableView()
+        searchResultsTableView.backgroundColor = UIColor.clear
+        searchResultsTableView.register(UITableViewCell.self, forCellReuseIdentifier: cellId)
+//        searchResultsTableView.dataSource = self
+//        searchResultsTableView.delegate = self
+        searchResultsTableView.translatesAutoresizingMaskIntoConstraints = false
+        return searchResultsTableView
+    }()
+    
     lazy var latitudeInputField: CustomTextField = {
         let latitudeInfoField = CustomTextField()
         latitudeInfoField.text = PlaceHolderText.latitude
+        latitudeInfoField.isUserInteractionEnabled = false
         return latitudeInfoField
     }()
     
     lazy var longitudeInputField: CustomTextField = {
         let longitudeInfoField = CustomTextField()
         longitudeInfoField.text = PlaceHolderText.longitude
+        longitudeInfoField.isUserInteractionEnabled = false
         return longitudeInfoField
-    }()
-    
-    lazy var locationInfoField: CustomTextField = {
-        let locationInfoField = CustomTextField()
-        locationInfoField.text = PlaceHolderText.location
-        locationInfoField.isUserInteractionEnabled = false
-        return locationInfoField
     }()
     
     lazy var triggerInfoField: CustomTextField = {
         let triggerInfoField = CustomTextField()
         triggerInfoField.text = ToggleText.leavingTrigger
+        triggerInfoField.isUserInteractionEnabled = false
         return triggerInfoField
     }()
     
@@ -117,6 +135,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     lazy var repeatOrNotInfoField: CustomTextField = {
         let repeatOrNotInfoField = CustomTextField()
         repeatOrNotInfoField.text = ToggleText.isNotRepeating
+        repeatOrNotInfoField.isUserInteractionEnabled = false
         return repeatOrNotInfoField
     }()
     
@@ -130,6 +149,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     lazy var bubbleColorInfoField: CustomTextField = {
         let bubbleColorInfoField = CustomTextField()
         bubbleColorInfoField.text = PlaceHolderText.bubbleColor
+        bubbleColorInfoField.isUserInteractionEnabled = false
         return bubbleColorInfoField
     }()
     
@@ -155,17 +175,17 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     lazy var bubbleRadiusInfoField: CustomTextField = {
         let bubbleRadiusInfoField = CustomTextField()
         bubbleRadiusInfoField.isUserInteractionEnabled = false
-        bubbleRadiusInfoField.text = "Bubble radius: \(radiusInMeters)m"
+        bubbleRadiusInfoField.text = "Bubble radius: \(radiusInMeters.clean)m"
         return bubbleRadiusInfoField
     }()
     
     lazy var bubbleRadiusSlider: UISlider = {
         let bubbleRadiusSlider = UISlider()
         bubbleRadiusSlider.translatesAutoresizingMaskIntoConstraints = false
-        bubbleRadiusSlider.backgroundColor = ColorSet.appBackgroundColor
-        bubbleRadiusSlider.minimumTrackTintColor = ColorSet.objectColor
-        bubbleRadiusSlider.maximumTrackTintColor = ColorSet.tintColor
-        bubbleRadiusSlider.thumbTintColor = ColorSet.tintColor
+        bubbleRadiusSlider.backgroundColor = UIColor(named: .appBackgroundColor)
+        bubbleRadiusSlider.minimumTrackTintColor = UIColor(named: .objectColor)
+        bubbleRadiusSlider.maximumTrackTintColor = UIColor(named: .tintColor)
+        bubbleRadiusSlider.thumbTintColor = UIColor(named: .tintColor)
         bubbleRadiusSlider.minimumValue = 0
         bubbleRadiusSlider.maximumValue = 6
         bubbleRadiusSlider.setValue(2, animated: true)
@@ -180,11 +200,15 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         
         titleInputField.delegate = self
         messageInputField.delegate = self
-        latitudeInputField.delegate = self
-        longitudeInputField.delegate = self
+        locationSearchField.delegate = self
+//        latitudeInputField.delegate = self
+//        longitudeInputField.delegate = self
+        
+        searchCompleter.delegate = self
+        searchCompleter.queryFragment = locationSearchField.text!
         
         if modeSelected == .addReminderMode {
-            view.backgroundColor = ColorSet.appBackgroundColor
+            view.backgroundColor = UIColor(named: .appBackgroundColor)
             setupNavigationBarForAddMode()
         } else if modeSelected == .editReminderMode {
             view.backgroundColor = UIColor.systemRed
@@ -199,7 +223,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             messageInputField.text = reminder.message
             latitudeInputField.text = String(describing: reminder.latitude)
             longitudeInputField.text = String(describing: reminder.longitude)
-            locationInfoField.text = reminder.locationName
+            locationSearchField.text = reminder.locationName
             
             if reminder.triggerWhenEntering == true {
                 triggerInfoField.text = ToggleText.enteringTrigger
@@ -215,7 +239,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             bubbleColorView.backgroundColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.7)
             bubbleColorView.layer.borderColor = UIColor(named: reminder.bubbleColor)?.cgColor
-            bubbleRadiusInfoField.text = "\(Int(reminder.bubbleRadius))m"
+            bubbleRadiusInfoField.text = "\(reminder.bubbleRadius.clean)m"
         } else {
             presentAlert(description: ReminderError.reminderNil.localizedDescription, viewController: self)
         }
@@ -228,7 +252,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         scrollView.addSubview(messageInputField)
         scrollView.addSubview(longitudeInputField)
         scrollView.addSubview(latitudeInputField)
-        scrollView.addSubview(locationInfoField)
+        scrollView.addSubview(locationSearchField)
         scrollView.addSubview(triggerInfoField)
         scrollView.addSubview(triggerToggle)
         scrollView.addSubview(repeatOrNotInfoField)
@@ -269,27 +293,27 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             messageInputField.topAnchor.constraint(equalTo: titleInputField.bottomAnchor),
             messageInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            messageInputField.heightAnchor.constraint(equalToConstant: 2*Constant.inputFieldSize),
+            messageInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            locationSearchField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            locationSearchField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            locationSearchField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
-            latitudeInputField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            latitudeInputField.topAnchor.constraint(equalTo: locationSearchField.bottomAnchor),
             latitudeInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             latitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
             latitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
-            longitudeInputField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            longitudeInputField.topAnchor.constraint(equalTo: locationSearchField.bottomAnchor),
             longitudeInputField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             longitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
             longitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
-            
-            locationInfoField.topAnchor.constraint(equalTo: latitudeInputField.bottomAnchor),
-            locationInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            locationInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
-            triggerInfoField.topAnchor.constraint(equalTo: locationInfoField.bottomAnchor),
+            triggerInfoField.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
             triggerInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             triggerInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             
-            triggerToggle.topAnchor.constraint(equalTo: locationInfoField.bottomAnchor),
+            triggerToggle.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
             triggerToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
             triggerToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
 
@@ -377,35 +401,35 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         let radiiInMeters: [Double] = [10, 25, 50, 100, 500, 1000, 5000]
         let radiusSelected = Double(radiiInMeters[Int(roundf(sender.value))])
         radiusInMeters = radiusSelected
-        bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected)m"
+        bubbleRadiusInfoField.text = "Bubble radius: \(radiusSelected.clean)m"
     }
     
-    private func checkCoordinateInput() {
-        let connectionAvailable = Reachability.checkReachable()
-        
-        if connectionAvailable == true {
-            if latitudeReceived == true && longitudeReceived == true {
-                // If both are true we try to obtain location from coordinates
-                guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
-                let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
-                getLocationName(location: location)
-            } else {
-                if latitudeReceived == false && longitudeReceived == true {
-                    locationInfoField.text = PlaceHolderText.locationLatitude
-                } else if latitudeReceived == true && longitudeReceived == false {
-                    locationInfoField.text = PlaceHolderText.locationLongitude
-                } else if latitudeReceived == false && longitudeReceived == false {
-                    locationInfoField.text = PlaceHolderText.location
-                }
-            }
-        } else {
-            presentAlert(description: NetworkingError.noConnection.localizedDescription, viewController: self)
-            locationInfoField.text = "There is no internet connection./nUnable to obtain location name"
-        }
-    }
+//    private func checkCoordinateInput() {
+//        let connectionAvailable = Reachability.checkReachable()
+//
+//        if connectionAvailable == true {
+//            if latitudeReceived == true && longitudeReceived == true {
+//                // If both are true we try to obtain location from coordinates
+//                guard let latitude = latitudeInputField.text, let longitude = longitudeInputField.text else { return }
+//                let location: CLLocation = CLLocation(latitude: latitude.doubleValue, longitude: longitude.doubleValue)
+//                getLocationName(location: location)
+//            } else {
+//                if latitudeReceived == false && longitudeReceived == true {
+//                    locationSearchField.text = ""//PlaceHolderText.locationLatitude
+//                } else if latitudeReceived == true && longitudeReceived == false {
+//                    locationSearchField.text = ""//PlaceHolderText.locationLongitude
+//                } else if latitudeReceived == false && longitudeReceived == false {
+//                    locationSearchField.text = PlaceHolderText.location
+//                }
+//            }
+//        } else {
+//            presentAlert(description: NetworkingError.noConnection.localizedDescription, viewController: self)
+//            locationSearchField.text = "There is no internet connection./nUnable to obtain location name"
+//        }
+//    }
     
     private func getLocationName(location: CLLocation) {
-        locationInfoField.text = "Trying to obtain location from coordinates..."
+        locationSearchField.text = "Trying to obtain location from coordinates..."
         let geographicCoder = CLGeocoder()
         
 //        guard let previousLocation = self.previousLocation else { return }
@@ -418,7 +442,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             guard error == nil else {
                 self.presentAlert(description: ReminderError.unableToObtainLocation.localizedDescription, viewController: self)
-                self.locationInfoField.text = "Could not obtain location from current coordinates"
+                self.locationSearchField.text = "Could not obtain location from current coordinates"
                 return
             }
             guard let placemark = placemark?.first else { // country
@@ -465,43 +489,43 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             }
             
             if locationName != "" {
-                self.locationInfoField.text = locationName
+                self.locationSearchField.text = locationName
             } else {
-                self.locationInfoField.text = "Location Unknown"
+                self.locationSearchField.text = "Location Unknown"
             }
             
         }
     }
     
-    private func checkIfInputValid(input: String) -> Bool {
-        // Check if latitude/longitude is valid input
-        var isValid: Bool = false
-
-        let minus: Character = "-"
-        let dot: Character = "."
-
-        let countMinusus = input.filter { $0 == minus }.count
-        let countDots = input.filter { $0 == dot }.count
-        
-        if countMinusus <= 1 && countDots <= 1 {
-            print("Both are 0 or 1")
-            if countMinusus == 1 {
-                if input.first != minus {
-                    // Here we have 1 minus but it is not the first character
-                    isValid = false
-                } else {
-                    isValid = true
-                }
-            } else {
-                isValid = true
-            }
-        } else if countMinusus > 1 || countDots > 1 {
-            print("Number of dots: \(countDots). Number of minusus: \(countMinusus)")
-            isValid = false
-        }
-
-        return isValid
-    }
+//    private func checkIfInputValid(input: String) -> Bool {
+//        // Check if latitude/longitude is valid input
+//        var isValid: Bool = false
+//
+//        let minus: Character = "-"
+//        let dot: Character = "."
+//
+//        let countMinusus = input.filter { $0 == minus }.count
+//        let countDots = input.filter { $0 == dot }.count
+//
+//        if countMinusus <= 1 && countDots <= 1 {
+//            print("Both are 0 or 1")
+//            if countMinusus == 1 {
+//                if input.first != minus {
+//                    // Here we have 1 minus but it is not the first character
+//                    isValid = false
+//                } else {
+//                    isValid = true
+//                }
+//            } else {
+//                isValid = true
+//            }
+//        } else if countMinusus > 1 || countDots > 1 {
+//            print("Number of dots: \(countDots). Number of minusus: \(countMinusus)")
+//            isValid = false
+//        }
+//
+//        return isValid
+//    }
     
     @objc private func cancel() {
         navigationController?.popViewController(animated: true)
@@ -534,7 +558,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
                 presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
                 return
             }
-            guard let locationName = locationInfoField.text, !locationName.isEmpty else {
+            guard let locationName = locationSearchField.text, !locationName.isEmpty else {
                 presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
                 return
             }
@@ -555,7 +579,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
-            if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationInfoField.text {
+            if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationSearchField.text {
                 reminder.title = newTitle
                 reminder.message = newMessage
                 reminder.latitude = newLatitude.doubleValue
@@ -600,9 +624,9 @@ extension ReminderController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let maxCharactersIntitle = 20
         let maxCharactersInMessage = 40
-        let maxCharactersInLatOrLong = 10
+//        let maxCharactersInLatOrLong = 10
         
-        let allowedCharacters = CharacterSet(charactersIn: "1234567890.-")//.inverted // This would be opposite
+//        let allowedCharacters = CharacterSet(charactersIn: "1234567890.-")//.inverted // This would be opposite
         
         switch textField {
         case titleInputField:
@@ -613,22 +637,22 @@ extension ReminderController: UITextFieldDelegate {
             let currentString = messageInputField.text! as NSString
             let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
             return newString.length <= maxCharactersInMessage
-        case latitudeInputField:
-            let currentString = latitudeInputField.text! as NSString
-            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
-            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
-                return newString.length <= maxCharactersInLatOrLong
-            } else {
-                return true
-            }
-        case longitudeInputField:
-            let currentString = longitudeInputField.text! as NSString
-            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
-            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
-                return newString.length <= maxCharactersInLatOrLong
-            } else {
-                return true
-            }
+//        case latitudeInputField:
+//            let currentString = latitudeInputField.text! as NSString
+//            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+//            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
+//                return newString.length <= maxCharactersInLatOrLong
+//            } else {
+//                return true
+//            }
+//        case longitudeInputField:
+//            let currentString = longitudeInputField.text! as NSString
+//            let newString: NSString = currentString.replacingCharacters(in: range, with: string) as NSString
+//            if (string.rangeOfCharacter(from: allowedCharacters) != nil) {
+//                return newString.length <= maxCharactersInLatOrLong
+//            } else {
+//                return true
+//            }
         default:
             return true // Allows backspace
         }
@@ -648,12 +672,16 @@ extension ReminderController: UITextFieldDelegate {
             if text == PlaceHolderText.message {
                 textField.text = ""
             }
-        case latitudeInputField:
-            if text == PlaceHolderText.latitude {
-                textField.text = ""
-            }
-        case longitudeInputField:
-            if text == PlaceHolderText.longitude {
+//        case latitudeInputField:
+//            if text == PlaceHolderText.latitude {
+//                textField.text = ""
+//            }
+//        case longitudeInputField:
+//            if text == PlaceHolderText.longitude {
+//                textField.text = ""
+//            }
+        case locationSearchField:
+            if text == PlaceHolderText.location {
                 textField.text = ""
             }
         default: break
@@ -675,48 +703,52 @@ extension ReminderController: UITextFieldDelegate {
                 if input.isEmpty {
                     messageInputField.text = PlaceHolderText.message
                 }
-            case latitudeInputField:
-                latitudeReceived = false
+            case locationSearchField:
                 if input.isEmpty {
-                    latitudeInputField.text = PlaceHolderText.latitude
-                    latitudeReceived = false
-                } else {
-                    if checkIfInputValid(input: input) == false {
-                        presentAlert(description: ReminderError.invalidLatitude.localizedDescription, viewController: self)
-                        latitudeInputField.text = PlaceHolderText.latitude
-                        latitudeReceived = false
-                    } else {
-                        let latitudeLimit: Float = 90
-                        if input.floatValue < -latitudeLimit {
-                            textField.text = "-90"
-                        } else if input.floatValue > latitudeLimit {
-                            textField.text = "90"
-                        }
-                        latitudeReceived = true
-                    }
+                    locationSearchField.text = PlaceHolderText.location
                 }
-                checkCoordinateInput()
-            case longitudeInputField:
-                longitudeReceived = false
-                if input.isEmpty {
-                    longitudeInputField.text = PlaceHolderText.longitude
-                    longitudeReceived = false
-                } else {
-                    if checkIfInputValid(input: input) == false {
-                        presentAlert(description: ReminderError.invalidLongitude.localizedDescription, viewController: self)
-                        longitudeInputField.text = PlaceHolderText.longitude
-                        longitudeReceived = false
-                    } else {
-                        let longitudeLimit: Float = 180
-                        if input.floatValue < -longitudeLimit {
-                            textField.text = "-180"
-                        } else if input.floatValue > longitudeLimit {
-                            textField.text = "180"
-                        }
-                        longitudeReceived = true
-                    }
-                }
-                checkCoordinateInput()
+//            case latitudeInputField:
+//                latitudeReceived = false
+//                if input.isEmpty {
+//                    latitudeInputField.text = PlaceHolderText.latitude
+//                    latitudeReceived = false
+//                } else {
+//                    if checkIfInputValid(input: input) == false {
+//                        presentAlert(description: ReminderError.invalidLatitude.localizedDescription, viewController: self)
+//                        latitudeInputField.text = PlaceHolderText.latitude
+//                        latitudeReceived = false
+//                    } else {
+//                        let latitudeLimit: Float = 90
+//                        if input.floatValue < -latitudeLimit {
+//                            textField.text = "-90"
+//                        } else if input.floatValue > latitudeLimit {
+//                            textField.text = "90"
+//                        }
+//                        latitudeReceived = true
+//                    }
+//                }
+//                checkCoordinateInput()
+//            case longitudeInputField:
+//                longitudeReceived = false
+//                if input.isEmpty {
+//                    longitudeInputField.text = PlaceHolderText.longitude
+//                    longitudeReceived = false
+//                } else {
+//                    if checkIfInputValid(input: input) == false {
+//                        presentAlert(description: ReminderError.invalidLongitude.localizedDescription, viewController: self)
+//                        longitudeInputField.text = PlaceHolderText.longitude
+//                        longitudeReceived = false
+//                    } else {
+//                        let longitudeLimit: Float = 180
+//                        if input.floatValue < -longitudeLimit {
+//                            textField.text = "-180"
+//                        } else if input.floatValue > longitudeLimit {
+//                            textField.text = "180"
+//                        }
+//                        longitudeReceived = true
+//                    }
+//                }
+//                checkCoordinateInput()
             default:
                 break
             }
@@ -726,5 +758,16 @@ extension ReminderController: UITextFieldDelegate {
         // Dismiss Keyboard if "return" pressed
         textField.resignFirstResponder()
         return true
+    }
+}
+
+extension ReminderController: MKLocalSearchCompleterDelegate {
+    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+        searchResults = completer.results
+//        searchResultsTableView.reloadData()
+    }
+    
+    func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
+        // MARK: Handle Errors
     }
 }

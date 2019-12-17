@@ -45,7 +45,7 @@ class MainController: UIViewController {
 //        compass.layer.cornerRadius = Constant.compassCornerRadius
 //        compass.layer.masksToBounds = true
         compass.backgroundColor = .clear
-        compass.tintColor = ColorSet.tintColor
+        compass.tintColor = UIColor(named: .tintColor)
         compass.alpha = 0.70
         return compass
     }()
@@ -91,7 +91,7 @@ class MainController: UIViewController {
 //        fetchedResultsController.delegate = self
         memoMap.delegate = self
         
-        view.backgroundColor = ColorSet.appBackgroundColor
+        view.backgroundColor = UIColor(named: .appBackgroundColor)
     
         setupView()
         setupNavigationBar()

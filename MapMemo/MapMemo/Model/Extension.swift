@@ -52,21 +52,6 @@ extension UIViewController {
     }
 }
 
-//extension UIView {
-//    // Used for setting constraint 
-//    public func addConstraintsWithFormat(_ format: String, views: UIView...) {
-//        var viewsDictionary = [String: UIView]()
-//
-//        for (index, view) in views.enumerated() {
-//            let key = "v\(index)"
-//            view.translatesAutoresizingMaskIntoConstraints = false
-//            viewsDictionary[key] = view
-//        }
-//
-//       addConstraints(NSLayoutConstraint.constraints(withVisualFormat: format, options: NSLayoutConstraint.FormatOptions(rawValue: 0), metrics: nil, views: viewsDictionary))
-//    }
-//}
-
 extension FloatingPoint {
     // Converts to radians. Used for compass image rotation
     var degreesToRadians: Self { return self * .pi / 180 }
@@ -100,4 +85,10 @@ extension String {
 extension LosslessStringConvertible {
     // Double to String
     var toString: String { return .init(self)}
+}
+
+extension Double {
+    var clean: String {
+       return self.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", self) : String(self)
+    }
 }

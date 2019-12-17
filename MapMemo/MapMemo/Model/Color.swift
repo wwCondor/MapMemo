@@ -8,20 +8,14 @@
 
 import UIKit
 
+// For storing Colors as string to CoreData
 enum Color {
-    case appBackground
-    case objectColor
-    case tint
-    
     case bubbleRed
     case bubbleYellow
     case bubbleBlue
 
     var name: String {
         switch self {
-        case .appBackground:  return "AppBackgroundColor"
-        case .objectColor:    return "ObjectColor"
-        case .tint:           return "TintColor"
         case .bubbleRed:      return "BubbleRed"
         case .bubbleYellow:   return "BubbleYellow"
         case .bubbleBlue:     return "BubbleBlue"
@@ -29,14 +23,37 @@ enum Color {
     }
 }
 
-struct ColorSet {
-    static let appBackgroundColor: UIColor = UIColor(named: Color.appBackground.name)!
-    static let objectColor: UIColor = UIColor(named: Color.objectColor.name)!
-    static let tintColor: UIColor = UIColor(named: Color.tint.name)! // icon and text
+// Used for colors that dont need saving
+extension UIColor {
+    struct Name: RawRepresentable {
+        typealias RawValue = String
+
+        var rawValue: RawValue
+
+        var name: String { return rawValue}
+
+        init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        init(name: String) {
+            self.init(rawValue: name)
+        }
+    }
+
+    convenience init?(named: Name) {
+        self.init(named: named.name)
+    }
 }
 
-//struct Bubble {
-//    static let red: UIColor = UIColor(named: Color.red.name)!
-//    static let yellow: UIColor = UIColor(named: Color.yellow.name)!
-//    static let blue: UIColor = UIColor(named: Color.blue.name)!
+extension UIColor.Name {
+    static let appBackgroundColor = UIColor.Name(name: "AppBackgroundColor")
+    static let objectColor = UIColor.Name(name: "ObjectColor")
+    static let tintColor = UIColor.Name(name: "TintColor")
+}
+
+//struct ColorSet {
+//    static let appBackgroundColor: UIColor = UIColor(named: Color.appBackground.name)!
+//    static let objectColor: UIColor = UIColor(named: Color.objectColor.name)!
+//    static let tintColor: UIColor = UIColor(named: Color.tint.name)! // icon and text
 //}

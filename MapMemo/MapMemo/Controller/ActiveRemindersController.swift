@@ -39,15 +39,12 @@ class ActiveRemindersController: UIViewController {
         
         fetchedResultsController.delegate = fetchedResultsController
 
-        view.backgroundColor = ColorSet.appBackgroundColor
+        view.backgroundColor = UIColor(named: .appBackgroundColor)
         
         setupView()
         setupNavigationBar()
 //        addReminders()
     }
-    
-
-
     
     private func setupView() {
         view.addSubview(activeReminders)
@@ -80,9 +77,6 @@ class ActiveRemindersController: UIViewController {
 //    }
 }
 
-//reminderController.modeSelected = .addReminderMode
-//reminderController.managedObjectContext = self.managedObjectContext
-
 extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let reminder = fetchedResultsController.object(at: indexPath)
@@ -104,8 +98,8 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let reminder = fetchedResultsController.object(at: indexPath)
         let cell = activeReminders.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ReminderCell
-        cell.backgroundColor = ColorSet.appBackgroundColor
-        cell.layer.borderColor = ColorSet.objectColor.cgColor
+        cell.backgroundColor = UIColor(named: .appBackgroundColor)
+        cell.layer.borderColor = UIColor(named: .objectColor)?.cgColor
         cell.layer.borderWidth = Constant.borderWidth
         cell.selectionStyle = .none
         
@@ -120,9 +114,9 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         }
         
         if reminder.isRepeating == true {
-            cell.recurringInfoField.text = PlaceHolderText.isRepeating
+            cell.recurringInfoField.text = ToggleText.isRepeating
         } else if reminder.isRepeating == false {
-            cell.recurringInfoField.text = PlaceHolderText.notRepeating
+            cell.recurringInfoField.text = ToggleText.isNotRepeating
         }
         
         cell.bubbleColorView.backgroundColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.7)
@@ -133,7 +127,7 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return Constant.inputFieldSize// + Constant.cellSpacing
+        return Constant.activeReminderCellSize// + Constant.cellSpacing
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
@@ -143,10 +137,9 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
     // MARK: Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            //        let reminder = fetchedResultsController.object(at: indexPath)
-            //        reminder.managedObjectContext?.delete(reminder)
-            //        reminder.managedObjectContext?.saveChanges()
-            //        activeReminders.reloadData()
+            let reminder = fetchedResultsController.object(at: indexPath)
+            reminder.managedObjectContext?.delete(reminder)
+            reminder.managedObjectContext?.saveChanges()
         }
         activeReminders.reloadData()
 
