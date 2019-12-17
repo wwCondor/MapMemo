@@ -72,32 +72,31 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     lazy var titleInputField: CustomTextField = {
         let titleInputField = CustomTextField()
         titleInputField.text = PlaceHolderText.title
-        titleInputField.layer.borderWidth = 0
         return titleInputField
-    }() // MARK: reminder.title = titleInputField.text
+    }()
     
     lazy var messageInputField: CustomTextField = {
         let messageInputField = CustomTextField()
         messageInputField.text = PlaceHolderText.message
         return messageInputField
-    }() // MARK: reminder.message = messageInputField.text
+    }()
     
     lazy var latitudeInputField: CustomTextField = {
         let latitudeInfoField = CustomTextField()
         latitudeInfoField.text = PlaceHolderText.latitude
         return latitudeInfoField
-    }() // MARK: reminder.latitude = latitudeInputField.text save as Float!
+    }()
     
     lazy var longitudeInputField: CustomTextField = {
         let longitudeInfoField = CustomTextField()
         longitudeInfoField.text = PlaceHolderText.longitude
         return longitudeInfoField
-    }() // MARK: reminder.longitude = longitudeInputField.text save as Float!
+    }()
     
     lazy var locationInfoField: CustomTextField = {
         let locationInfoField = CustomTextField()
-        locationInfoField.isUserInteractionEnabled = false
         locationInfoField.text = PlaceHolderText.location
+        locationInfoField.isUserInteractionEnabled = false
         return locationInfoField
     }()
     
@@ -111,7 +110,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         let triggerToggle = TapToggleView()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleTriggerMode(sender:)))
         triggerToggle.addGestureRecognizer(tapGesture)
-        return triggerToggle // MARK: reminder.triggerWhenEntering = triggerToggle.isOn
+        return triggerToggle
 
     }()
     
@@ -125,7 +124,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         let repeatToggle = TapToggleView()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleRepeatMode(sender:)))
         repeatToggle.addGestureRecognizer(tapGesture)
-        return repeatToggle // MARK: reminder.isRepeating = repeatToggle.isOn
+        return repeatToggle
     }()
     
     lazy var bubbleColorInfoField: CustomTextField = {
@@ -139,7 +138,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         colorToggle.translatesAutoresizingMaskIntoConstraints = false
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleColor(sender:)))
         colorToggle.addGestureRecognizer(tapGesture)
-        return colorToggle // MARK: reminder.bubbleColor = triggerInfoTouchView.isOn
+        return colorToggle
     }()
  
     lazy var bubbleColorView: UIView = {
@@ -194,6 +193,34 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         setupView()
     }
     
+    func updateInfoForSelectedReminder() {
+        if let reminder = reminder {
+            titleInputField.text = reminder.title
+            messageInputField.text = reminder.message
+            latitudeInputField.text = String(describing: reminder.latitude)
+            longitudeInputField.text = String(describing: reminder.longitude)
+            locationInfoField.text = reminder.locationName
+            
+            if reminder.triggerWhenEntering == true {
+                triggerInfoField.text = ToggleText.enteringTrigger
+            } else if reminder.triggerWhenEntering == false {
+                triggerInfoField.text = ToggleText.leavingTrigger
+            }
+            
+            if reminder.isRepeating == true {
+                repeatOrNotInfoField.text = ToggleText.isRepeating
+            } else if reminder.isRepeating == false {
+                repeatOrNotInfoField.text = ToggleText.isNotRepeating
+            }
+            
+            bubbleColorView.backgroundColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.7)
+            bubbleColorView.layer.borderColor = UIColor(named: reminder.bubbleColor)?.cgColor
+            bubbleRadiusInfoField.text = "\(Int(reminder.bubbleRadius))m"
+        } else {
+            presentAlert(description: ReminderError.reminderNil.localizedDescription, viewController: self)
+        }
+    }
+    
     private func setupView() {
         view.addSubview(saveButton)
         view.addSubview(scrollView)
@@ -219,6 +246,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
                 saveButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
             ])
         } else if modeSelected == .editReminderMode {
+            updateInfoForSelectedReminder() 
             NSLayoutConstraint.activate([
                 backButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
                 deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width * (1/2)),
@@ -527,11 +555,40 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
-//            if let reminder = reminder
-            
-            
-            
-            print("Edits to Reminder Saved")
+            if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationInfoField.text {
+                reminder.title = newTitle
+                reminder.message = newMessage
+                reminder.latitude = newLatitude.doubleValue
+                reminder.longitude = newLongitude.doubleValue
+                reminder.locationName = newLocationName
+                
+                reminder.triggerWhenEntering = triggerToggle.isOn
+                reminder.isRepeating = repeatToggle.isOn
+                reminder.bubbleColor = bubbleColors[colorSelected]
+                reminder.bubbleRadius = Double(radiusInMeters)
+                
+                reminder.managedObjectContext?.saveChanges()
+                print("Changes Saved for Reminder: \(reminder.title)")
+//                let newTrigger = triggerToggle.isOn
+//                let newIsRepeating = repeatToggle.isOn
+//                let newBubbleColor = bubbleColors[colorSelected]
+//                let newRadius = Double(radiusInMeters)
+            } else {
+                if reminder == nil {
+                    presentAlert(description: ReminderError.reminderNil.localizedDescription, viewController: self)
+                } else if reminder?.title == "" {
+                    presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+                } else if reminder?.message == "" {
+                    presentAlert(description: ReminderError.missingMessage.localizedDescription, viewController: self)
+                } else if reminder?.latitude.toString == "" {
+                    presentAlert(description: ReminderError.missingLatitude.localizedDescription, viewController: self)
+                } else if reminder?.longitude.toString == "" {
+                    presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
+                } else if reminder?.locationName == "" {
+                    presentAlert(description: ReminderError.missingLocationName.localizedDescription, viewController: self)
+                }
+            }
+
         }
         navigationController?.popViewController(animated: true)
     }

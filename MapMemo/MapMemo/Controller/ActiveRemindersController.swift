@@ -20,7 +20,7 @@ class ActiveRemindersController: UIViewController {
         return FetchedResultsController(managedObjectContext: self.managedObjectContext, tableView: self.activeReminders, request: Reminder.fetchRequest())
     }()
     
-    var reminders: [MapMemoStub] = [] // MARK: Test
+//    var reminders: [MapMemoStub] = [] // MARK: Test
     
     let cellId = "cellId"
     
@@ -43,8 +43,11 @@ class ActiveRemindersController: UIViewController {
         
         setupView()
         setupNavigationBar()
-        addReminders()
+//        addReminders()
     }
+    
+
+
     
     private func setupView() {
         view.addSubview(activeReminders)
@@ -62,19 +65,19 @@ class ActiveRemindersController: UIViewController {
         self.navigationController?.navigationBar.backIndicatorImage = backBarButtonItem
     }
     
-    func addReminders() {
-        reminders.append(MapMemoStub.init(title: "First Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 10, triggerWhenEntering: true, locationId: "LocationId1", isRepeating: false, bubbleColor: BubbleColor.black.string))
-        reminders.append(MapMemoStub.init(title: "Second Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 20, triggerWhenEntering: false, locationId: "LocationId2", isRepeating: true, bubbleColor: BubbleColor.blue.string))
-        reminders.append(MapMemoStub.init(title: "Third Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 30, triggerWhenEntering: true, locationId: "LocationId3", isRepeating: false, bubbleColor: BubbleColor.green.string))
-        reminders.append(MapMemoStub.init(title: "Fourth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 40, triggerWhenEntering: false, locationId: "LocationId4", isRepeating: true, bubbleColor: BubbleColor.red.string))
-        reminders.append(MapMemoStub.init(title: "Fifth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 50, triggerWhenEntering: true, locationId: "LocationId5", isRepeating: false, bubbleColor: BubbleColor.yellow.string))
-        reminders.append(MapMemoStub.init(title: "Sixth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 60, triggerWhenEntering: false, locationId: "LocationId6", isRepeating: true, bubbleColor: BubbleColor.black.string))
-        reminders.append(MapMemoStub.init(title: "Seventh Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 70, triggerWhenEntering: true, locationId: "LocationId7", isRepeating: false, bubbleColor: BubbleColor.blue.string))
-        reminders.append(MapMemoStub.init(title: "Eigth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 80, triggerWhenEntering: false, locationId: "LocationId8", isRepeating: true, bubbleColor: BubbleColor.green.string))
-        reminders.append(MapMemoStub.init(title: "Ninth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 90, triggerWhenEntering: true, locationId: "LocationId9", isRepeating: false, bubbleColor: BubbleColor.red.string))
-        reminders.append(MapMemoStub.init(title: "Tenth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 100, triggerWhenEntering: false, locationId: "LocationId0", isRepeating: true, bubbleColor: BubbleColor.yellow.string))
-        activeReminders.reloadData()
-    }
+//    func addReminders() {
+//        reminders.append(MapMemoStub.init(title: "First Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 10, triggerWhenEntering: true, locationId: "LocationId1", isRepeating: false, bubbleColor: BubbleColor.black.string))
+//        reminders.append(MapMemoStub.init(title: "Second Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 20, triggerWhenEntering: false, locationId: "LocationId2", isRepeating: true, bubbleColor: BubbleColor.blue.string))
+//        reminders.append(MapMemoStub.init(title: "Third Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 30, triggerWhenEntering: true, locationId: "LocationId3", isRepeating: false, bubbleColor: BubbleColor.green.string))
+//        reminders.append(MapMemoStub.init(title: "Fourth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 40, triggerWhenEntering: false, locationId: "LocationId4", isRepeating: true, bubbleColor: BubbleColor.red.string))
+//        reminders.append(MapMemoStub.init(title: "Fifth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 50, triggerWhenEntering: true, locationId: "LocationId5", isRepeating: false, bubbleColor: BubbleColor.yellow.string))
+//        reminders.append(MapMemoStub.init(title: "Sixth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 60, triggerWhenEntering: false, locationId: "LocationId6", isRepeating: true, bubbleColor: BubbleColor.black.string))
+//        reminders.append(MapMemoStub.init(title: "Seventh Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 70, triggerWhenEntering: true, locationId: "LocationId7", isRepeating: false, bubbleColor: BubbleColor.blue.string))
+//        reminders.append(MapMemoStub.init(title: "Eigth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 80, triggerWhenEntering: false, locationId: "LocationId8", isRepeating: true, bubbleColor: BubbleColor.green.string))
+//        reminders.append(MapMemoStub.init(title: "Ninth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 90, triggerWhenEntering: true, locationId: "LocationId9", isRepeating: false, bubbleColor: BubbleColor.red.string))
+//        reminders.append(MapMemoStub.init(title: "Tenth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 100, triggerWhenEntering: false, locationId: "LocationId0", isRepeating: true, bubbleColor: BubbleColor.yellow.string))
+//        activeReminders.reloadData()
+//    }
 }
 
 //reminderController.modeSelected = .addReminderMode
@@ -82,8 +85,11 @@ class ActiveRemindersController: UIViewController {
 
 extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let reminder = fetchedResultsController.object(at: indexPath)
         reminderController.modeSelected = .editReminderMode
         reminderController.managedObjectContext = self.managedObjectContext // MARK: Added - Test
+        reminderController.reminder = reminder
+        reminderController.updateInfoForSelectedReminder()
         navigationController?.pushViewController(reminderController, animated: true)
     }
     
@@ -93,42 +99,36 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         }
         
         return section.numberOfObjects
-//        if reminders.count == 0 {
-//            return 1
-//        } else {
-//            return reminders.count
-//        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let entry = fetchedResultsController.object(at: indexPath)
+        let reminder = fetchedResultsController.object(at: indexPath)
         let cell = activeReminders.dequeueReusableCell(withIdentifier: cellId, for: indexPath) as! ReminderCell
         cell.backgroundColor = ColorSet.appBackgroundColor
-//        cell.layer.masksToBounds = true
         cell.layer.borderColor = ColorSet.objectColor.cgColor
         cell.layer.borderWidth = Constant.borderWidth
         cell.selectionStyle = .none
         
-        cell.titleInfoField.text = entry.title
+        cell.titleInfoField.text = reminder.title
         
-        cell.locationInfoField.text = entry.locationName
+        cell.locationInfoField.text = reminder.locationName
         
-        if entry.triggerWhenEntering == true {
+        if reminder.triggerWhenEntering == true {
             cell.arrowImage.transform = CGAffineTransform.identity
-        } else if entry.triggerWhenEntering == false {
+        } else if reminder.triggerWhenEntering == false {
             cell.arrowImage.transform = CGAffineTransform(rotationAngle: .pi)
         }
         
-        if entry.isRepeating == true {
+        if reminder.isRepeating == true {
             cell.recurringInfoField.text = PlaceHolderText.isRepeating
-        } else if entry.isRepeating == false {
+        } else if reminder.isRepeating == false {
             cell.recurringInfoField.text = PlaceHolderText.notRepeating
         }
         
-        cell.bubbleColorView.backgroundColor = UIColor(named: entry.bubbleColor)!.withAlphaComponent(0.7)
-        cell.bubbleColorView.layer.borderColor = UIColor(named: entry.bubbleColor)?.cgColor
+        cell.bubbleColorView.backgroundColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.7)
+        cell.bubbleColorView.layer.borderColor = UIColor(named: reminder.bubbleColor)?.cgColor
         
-        cell.radiusInfoField.text = "\(Int(entry.bubbleRadius))m"
+        cell.radiusInfoField.text = "\(Int(reminder.bubbleRadius))m"
         return cell
     }
     
@@ -140,11 +140,20 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         return true
     }
     
+    // MARK: Delete
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if (editingStyle == .delete) {
-            reminders.remove(at: indexPath.row)
-            activeReminders.reloadData()
+        if editingStyle == .delete {
+            //        let reminder = fetchedResultsController.object(at: indexPath)
+            //        reminder.managedObjectContext?.delete(reminder)
+            //        reminder.managedObjectContext?.saveChanges()
+            //        activeReminders.reloadData()
         }
+        activeReminders.reloadData()
+
+//        if (editingStyle == .delete) {
+//            reminders.remove(at: indexPath.row)
+//            activeReminders.reloadData()
+//        }
     }
 }
 

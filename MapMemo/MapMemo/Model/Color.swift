@@ -25,7 +25,6 @@ enum Color {
         case .bubbleRed:      return "BubbleRed"
         case .bubbleYellow:   return "BubbleYellow"
         case .bubbleBlue:     return "BubbleBlue"
-
         }
     }
 }

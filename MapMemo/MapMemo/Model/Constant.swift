@@ -9,15 +9,16 @@
 import UIKit
 
 struct Constant {
-    static let buttonBarHeight: CGFloat     = 60 // height of buttons/buttonbars
-    static let largeTextInset: CGFloat      = 10
-    static let smallTextInset: CGFloat      = 2
-    static let borderWidth: CGFloat         = 2
-    static let inputFieldSize: CGFloat      = 85
-    static let offset: CGFloat              = Constant.inputFieldSize/4
-    static let compassSize: CGFloat         = Constant.buttonBarHeight
-    static let compassCornerRadius: CGFloat = Constant.buttonBarHeight/2
-    static let cellPadding: CGFloat         = Constant.inputFieldSize/8
+    static let buttonBarHeight: CGFloat         = 60 // height of buttons/buttonbars
+    static let largeTextInset: CGFloat          = 10
+    static let smallTextInset: CGFloat          = 2
+    static let borderWidth: CGFloat             = 2
+    static let inputFieldSize: CGFloat          = 85
+    static let offset: CGFloat                  = Constant.inputFieldSize/4
+    static let compassSize: CGFloat             = Constant.buttonBarHeight
+    static let compassCornerRadius: CGFloat     = Constant.buttonBarHeight/2
+    static let cellPadding: CGFloat             = Constant.inputFieldSize/8
+    static let arrowAnimationOffset: CGFloat    = 8
 }
 
 struct PlaceHolderText {

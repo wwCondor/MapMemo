@@ -70,11 +70,10 @@ class ReminderCell: UITableViewCell {
     }()
     
     lazy var arrowImage: UIImageView = {
-        let arrowIcon = UIImage(named: Icon.arrowIcon.name)?.withRenderingMode(.alwaysTemplate)//.withTintColor(ColorSet.tintColor)
-//        arrowIcon?.withTintColor(ColorSet.tintColor)
+        let arrowIcon = UIImage(named: Icon.arrowIcon.name)?.withRenderingMode(.alwaysTemplate)
         let arrowImage = UIImageView(image: arrowIcon)
-        arrowImage.transform = CGAffineTransform(rotationAngle: .pi) // Rotated 180 degrees
-//        arrowImage.transform = CGAffineTransform.identity // Original direction
+//        arrowImage.transform = CGAffineTransform(rotationAngle: .pi) // Rotated 180 degrees
+        arrowImage.transform = CGAffineTransform.identity // Original direction
         arrowImage.tintColor = ColorSet.tintColor
         arrowImage.backgroundColor = .clear
         arrowImage.alpha = 0.70
@@ -91,8 +90,6 @@ class ReminderCell: UITableViewCell {
     }()
     
     func setupViews() {
-//        contentView.backgroundColor = .clear
-        
         contentView.addSubview(titleInfoField)
         contentView.addSubview(recurringInfoField)
         contentView.addSubview(locationInfoField)
@@ -130,7 +127,7 @@ class ReminderCell: UITableViewCell {
             bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
             
             arrowImage.centerYAnchor.constraint(equalTo: bubbleColorView.centerYAnchor),
-            arrowImage.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor),
+            arrowImage.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: Constant.arrowAnimationOffset),
             arrowImage.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/4),
             arrowImage.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/4),
             
@@ -139,5 +136,12 @@ class ReminderCell: UITableViewCell {
             touchScreen.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             touchScreen.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
+        
+        UIView.animate(withDuration: 1.5,
+                       delay: 0,
+                       options: [.repeat, .autoreverse],
+                       animations: {
+                        self.arrowImage.center.x += Constant.arrowAnimationOffset
+        }, completion: nil)
     }
 }

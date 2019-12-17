@@ -25,6 +25,7 @@ extension AuthorizationError: LocalizedError {
 }
 
 enum ReminderError: Error {
+    case reminderNil
     case missingTitle
     case missingMessage 
     case missingLatitude
@@ -38,6 +39,7 @@ enum ReminderError: Error {
 extension ReminderError: LocalizedError {
     public var localizedDescription: String {
         switch self {
+        case .reminderNil:                  return "It seems reminder is nil"
         case .missingTitle:                 return "Woops! You forgot to add a title to your reminder"
         case .missingMessage:               return "Woops! You forgot to add a message to your reminder"
         case .missingLatitude:              return "Woops! You forgot to enter a value for the latitude"

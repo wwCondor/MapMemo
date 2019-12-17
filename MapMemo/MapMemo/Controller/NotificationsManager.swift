@@ -10,22 +10,19 @@ import CoreLocation
 import UserNotifications
 
 final class NotificationManager: NSObject {
-    
-    let notificationCenter = UNUserNotificationCenter.current()
 
-    
     override init() {
         super.init()
         notificationCenter.delegate = self
     }
     
+    let notificationCenter = UNUserNotificationCenter.current()
+    static let shared = NotificationManager()
+
+    
     var notificationAuthorizationApproved: Bool = false
     var locationAuthorizationApproved: Bool = false
-    
-    
-    static let shared = NotificationManager()
-    
-    
+
     func createLocalNotification(notificationInfo: MapMemoStub) {
         let content = UNMutableNotificationContent()
         

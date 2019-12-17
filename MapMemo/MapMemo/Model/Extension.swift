@@ -96,3 +96,8 @@ extension String {
         return (self as NSString).doubleValue
     }
 }
+
+extension LosslessStringConvertible {
+    // Double to String
+    var toString: String { return .init(self)}
+}
