@@ -104,7 +104,7 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         cell.selectionStyle = .none
         
         cell.titleInfoField.text = reminder.title
-        
+        cell.messageInfoField.text = reminder.message
         cell.locationInfoField.text = reminder.locationName
         
         if reminder.triggerWhenEntering == true {

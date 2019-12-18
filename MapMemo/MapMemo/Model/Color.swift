@@ -8,7 +8,7 @@
 
 import UIKit
 
-// For storing Colors as string to CoreData
+// Used for storing colors as string to CoreData
 enum Color {
     case bubbleRed
     case bubbleYellow
@@ -47,13 +47,9 @@ extension UIColor {
 }
 
 extension UIColor.Name {
-    static let appBackgroundColor = UIColor.Name(name: "AppBackgroundColor")
-    static let objectColor = UIColor.Name(name: "ObjectColor")
-    static let tintColor = UIColor.Name(name: "TintColor")
+    static let appBackgroundColor       = UIColor.Name(name: "AppBackgroundColor")
+    static let objectColor              = UIColor.Name(name: "ObjectColor")
+    static let objectBorderColor        = UIColor.Name(name: "ObjectBorderColor")
+    static let tintColor                = UIColor.Name(name: "TintColor")
 }
 
-//struct ColorSet {
-//    static let appBackgroundColor: UIColor = UIColor(named: Color.appBackground.name)!
-//    static let objectColor: UIColor = UIColor(named: Color.objectColor.name)!
-//    static let tintColor: UIColor = UIColor(named: Color.tint.name)! // icon and text
-//}

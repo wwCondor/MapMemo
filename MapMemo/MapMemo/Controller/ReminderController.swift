@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import CoreLocation
+//import CoreLocation
 import MapKit
 import CoreData
 
@@ -30,20 +30,20 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
 //    var longitudeReceived: Bool = false
     
     var radiusInMeters: Double = 50
-    var previousLocation: CLLocation?
+//    var previousLocation: CLLocation?
     
-    lazy var scrollView: UIScrollView = {
-        let scrollView = UIScrollView(frame: .zero)
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.backgroundColor = UIColor(named: .appBackgroundColor)
-        scrollView.layer.borderColor = UIColor(named: .objectColor)?.cgColor
-        scrollView.layer.borderWidth = Constant.borderWidth
-        scrollView.contentSize.height = Constant.inputFieldSize*9
-        scrollView.bounces = true
-        scrollView.autoresizingMask = .flexibleHeight
-        scrollView.showsVerticalScrollIndicator = true
-        return scrollView
-    }()
+//    lazy var scrollView: UIScrollView = {
+//        let scrollView = UIScrollView(frame: .zero)
+//        scrollView.translatesAutoresizingMaskIntoConstraints = false
+//        scrollView.backgroundColor = UIColor(named: .appBackgroundColor)
+//        scrollView.layer.borderColor = UIColor(named: .objectColor)?.cgColor
+//        scrollView.layer.borderWidth = Constant.borderWidth
+//        scrollView.contentSize.height = Constant.inputFieldSize*9
+//        scrollView.bounces = true
+//        scrollView.autoresizingMask = .flexibleHeight
+//        scrollView.showsVerticalScrollIndicator = true
+//        return scrollView
+//    }()
     
     lazy var backButton: CustomButton = {
         let backButton = CustomButton(type: .custom)
@@ -87,18 +87,18 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return messageInputField
     }()
     
-    lazy var locationSearchField: CustomTextField = {
-        let locationSearchField = CustomTextField()
-        locationSearchField.text = PlaceHolderText.location
-        return locationSearchField
+    // MARK: Change to UISearchBar
+    lazy var locationSearchBar: UISearchBar = {
+        let locationSearchBar = UISearchBar()
+        return locationSearchBar
     }()
     
     lazy var searchResultsTableView: UITableView = {
         let searchResultsTableView = UITableView()
         searchResultsTableView.backgroundColor = UIColor.clear
         searchResultsTableView.register(UITableViewCell.self, forCellReuseIdentifier: cellId)
-//        searchResultsTableView.dataSource = self
-//        searchResultsTableView.delegate = self
+        searchResultsTableView.dataSource = self
+        searchResultsTableView.delegate = self
         searchResultsTableView.translatesAutoresizingMaskIntoConstraints = false
         return searchResultsTableView
     }()
@@ -129,7 +129,6 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleTriggerMode(sender:)))
         triggerToggle.addGestureRecognizer(tapGesture)
         return triggerToggle
-
     }()
     
     lazy var repeatOrNotInfoField: CustomTextField = {
@@ -179,10 +178,18 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         return bubbleRadiusInfoField
     }()
     
+    lazy var sliderBackground: UIView = {
+        let sliderBackground = UIView()
+        sliderBackground.translatesAutoresizingMaskIntoConstraints = false
+        sliderBackground.layer.borderWidth = Constant.borderWidth
+        sliderBackground.layer.borderColor = UIColor(named: .objectBorderColor)?.cgColor
+        return sliderBackground
+    }()
+    
     lazy var bubbleRadiusSlider: UISlider = {
         let bubbleRadiusSlider = UISlider()
         bubbleRadiusSlider.translatesAutoresizingMaskIntoConstraints = false
-        bubbleRadiusSlider.backgroundColor = UIColor(named: .appBackgroundColor)
+        bubbleRadiusSlider.backgroundColor = UIColor.clear
         bubbleRadiusSlider.minimumTrackTintColor = UIColor(named: .objectColor)
         bubbleRadiusSlider.maximumTrackTintColor = UIColor(named: .tintColor)
         bubbleRadiusSlider.thumbTintColor = UIColor(named: .tintColor)
@@ -196,25 +203,41 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = UIColor(named: .appBackgroundColor)
+        
         self.hideKeyboardOnBackgroundTap()
         
         titleInputField.delegate = self
         messageInputField.delegate = self
-        locationSearchField.delegate = self
+        locationSearchBar.delegate = self
 //        latitudeInputField.delegate = self
 //        longitudeInputField.delegate = self
         
         searchCompleter.delegate = self
-        searchCompleter.queryFragment = locationSearchField.text!
+//        searchCompleter.queryFragment = locationSearchField.text!
         
         if modeSelected == .addReminderMode {
-            view.backgroundColor = UIColor(named: .appBackgroundColor)
+//            view.backgroundColor = UIColor(named: .appBackgroundColor)
             setupNavigationBarForAddMode()
         } else if modeSelected == .editReminderMode {
-            view.backgroundColor = UIColor.systemRed
+//            view.backgroundColor = UIColor.systemRed
             setupNavigationBarForEditMode()
         }
         setupView()
+        setupSearchBar()
+    }
+    
+    
+    private func setupSearchBar() {
+        locationSearchBar.translatesAutoresizingMaskIntoConstraints = false
+        locationSearchBar.delegate = self
+        locationSearchBar.placeholder = PlaceHolderText.location
+        locationSearchBar.barTintColor = UIColor(named: .appBackgroundColor)
+        locationSearchBar.tintColor = UIColor(named: .tintColor)
+        locationSearchBar.searchTextField.textColor = UIColor(named: .tintColor)
+        locationSearchBar.searchTextField.font = UIFont.systemFont(ofSize: 13.0, weight: .medium)
+        locationSearchBar.keyboardAppearance = .dark
+        locationSearchBar.returnKeyType = .done
     }
     
     func updateInfoForSelectedReminder() {
@@ -223,7 +246,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             messageInputField.text = reminder.message
             latitudeInputField.text = String(describing: reminder.latitude)
             longitudeInputField.text = String(describing: reminder.longitude)
-            locationSearchField.text = reminder.locationName
+            locationSearchBar.text = reminder.locationName
             
             if reminder.triggerWhenEntering == true {
                 triggerInfoField.text = ToggleText.enteringTrigger
@@ -247,21 +270,23 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
     
     private func setupView() {
         view.addSubview(saveButton)
-        view.addSubview(scrollView)
-        scrollView.addSubview(titleInputField)
-        scrollView.addSubview(messageInputField)
-        scrollView.addSubview(longitudeInputField)
-        scrollView.addSubview(latitudeInputField)
-        scrollView.addSubview(locationSearchField)
-        scrollView.addSubview(triggerInfoField)
-        scrollView.addSubview(triggerToggle)
-        scrollView.addSubview(repeatOrNotInfoField)
-        scrollView.addSubview(repeatToggle)
-        scrollView.addSubview(bubbleColorInfoField)
-        scrollView.addSubview(bubbleColorView)
-        scrollView.addSubview(colorToggle)
-        scrollView.addSubview(bubbleRadiusInfoField)
-        scrollView.addSubview(bubbleRadiusSlider)
+//        view.addSubview(scrollView)
+        view.addSubview(titleInputField)
+        view.addSubview(messageInputField)
+        view.addSubview(longitudeInputField)
+        view.addSubview(searchResultsTableView)
+        view.addSubview(latitudeInputField)
+        view.addSubview(locationSearchBar)
+        view.addSubview(triggerInfoField)
+        view.addSubview(triggerToggle)
+        view.addSubview(repeatOrNotInfoField)
+        view.addSubview(repeatToggle)
+        view.addSubview(bubbleColorInfoField)
+        view.addSubview(bubbleColorView)
+        view.addSubview(colorToggle)
+        view.addSubview(bubbleRadiusInfoField)
+        view.addSubview(sliderBackground)
+        view.addSubview(bubbleRadiusSlider)
         
         if modeSelected == .addReminderMode {
             NSLayoutConstraint.activate([
@@ -282,12 +307,12 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
         }
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: saveButton.topAnchor),
+//            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+//            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+//            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            scrollView.bottomAnchor.constraint(equalTo: saveButton.topAnchor),
             
-            titleInputField.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            titleInputField.topAnchor.constraint(equalTo: view.topAnchor),
             titleInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             titleInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             
@@ -295,57 +320,66 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             messageInputField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             messageInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             
-            locationSearchField.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
-            locationSearchField.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            locationSearchField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            locationSearchBar.topAnchor.constraint(equalTo: messageInputField.bottomAnchor),
+            locationSearchBar.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            locationSearchBar.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            
+            searchResultsTableView.topAnchor.constraint(equalTo: locationSearchBar.bottomAnchor),
+            searchResultsTableView.bottomAnchor.constraint(equalTo: latitudeInputField.topAnchor),
+            searchResultsTableView.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            searchResultsTableView.heightAnchor.constraint(equalToConstant: Constant.searchResultsTableSize),
 
-            latitudeInputField.topAnchor.constraint(equalTo: locationSearchField.bottomAnchor),
             latitudeInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             latitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
             latitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            latitudeInputField.bottomAnchor.constraint(equalTo: triggerInfoField.topAnchor),
 
-            longitudeInputField.topAnchor.constraint(equalTo: locationSearchField.bottomAnchor),
             longitudeInputField.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             longitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
             longitudeInputField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            longitudeInputField.bottomAnchor.constraint(equalTo: triggerInfoField.topAnchor),
 
-            triggerInfoField.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
             triggerInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             triggerInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            triggerInfoField.bottomAnchor.constraint(equalTo: repeatOrNotInfoField.topAnchor),
             
-            triggerToggle.topAnchor.constraint(equalTo: longitudeInputField.bottomAnchor),
             triggerToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
             triggerToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            triggerToggle.bottomAnchor.constraint(equalTo: repeatOrNotInfoField.topAnchor),
 
-            repeatOrNotInfoField.topAnchor.constraint(equalTo: triggerInfoField.bottomAnchor),
             repeatOrNotInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             repeatOrNotInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            repeatOrNotInfoField.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
             
-            repeatToggle.topAnchor.constraint(equalTo: triggerInfoField.bottomAnchor),
             repeatToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
             repeatToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            repeatToggle.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
 
-            bubbleColorInfoField.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor),
             bubbleColorInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             bubbleColorInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            bubbleColorInfoField.bottomAnchor.constraint(equalTo: bubbleRadiusInfoField.topAnchor),
+            
+            colorToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            colorToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            colorToggle.bottomAnchor.constraint(equalTo: bubbleRadiusInfoField.topAnchor),
 
-            bubbleColorView.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor, constant: Constant.offset),
             bubbleColorView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constant.offset),
             bubbleColorView.widthAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
             bubbleColorView.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize/2),
-            
-            colorToggle.topAnchor.constraint(equalTo: repeatOrNotInfoField.bottomAnchor),
-            colorToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            colorToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            bubbleColorView.bottomAnchor.constraint(equalTo: bubbleRadiusInfoField.topAnchor, constant: -Constant.offset),
 
-            bubbleRadiusInfoField.topAnchor.constraint(equalTo: bubbleColorInfoField.bottomAnchor),
             bubbleRadiusInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             bubbleRadiusInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
-            
-            bubbleRadiusSlider.topAnchor.constraint(equalTo: bubbleRadiusInfoField.bottomAnchor),
+            bubbleRadiusInfoField.bottomAnchor.constraint(equalTo: bubbleRadiusSlider.topAnchor),
+
             bubbleRadiusSlider.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: Constant.offset),
             bubbleRadiusSlider.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -Constant.offset),
             bubbleRadiusSlider.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            bubbleRadiusSlider.bottomAnchor.constraint(equalTo: saveButton.topAnchor),
+            
+            sliderBackground.widthAnchor.constraint(equalTo: view.widthAnchor),
+            sliderBackground.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            sliderBackground.bottomAnchor.constraint(equalTo: saveButton.topAnchor)
         ])
     }
     
@@ -428,74 +462,74 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
 //        }
 //    }
     
-    private func getLocationName(location: CLLocation) {
-        locationSearchField.text = "Trying to obtain location from coordinates..."
-        let geographicCoder = CLGeocoder()
-        
-//        guard let previousLocation = self.previousLocation else { return }
+//    private func getLocationName(location: CLLocation) {
+//        locationSearchBar.text = "Trying to obtain location from coordinates..."
+//        let geographicCoder = CLGeocoder()
+//        
+////        guard let previousLocation = self.previousLocation else { return }
+////
+////        guard location.distance(from: previousLocation) > 50 else { return }
+////        self.previousLocation = location
+//        
+//        geographicCoder.reverseGeocodeLocation(location) { [weak self] (placemark, error) in
+//            guard let self = self else { return }
+//            
+//            guard error == nil else {
+//                self.presentAlert(description: ReminderError.unableToObtainLocation.localizedDescription, viewController: self)
+//                self.locationSearchBar.text = "Could not obtain location from current coordinates"
+//                return
+//            }
+//            guard let placemark = placemark?.first else { // country
+//                return
+//            }
+//            print(placemark)
 //
-//        guard location.distance(from: previousLocation) > 50 else { return }
-//        self.previousLocation = location
-        
-        geographicCoder.reverseGeocodeLocation(location) { [weak self] (placemark, error) in
-            guard let self = self else { return }
-            
-            guard error == nil else {
-                self.presentAlert(description: ReminderError.unableToObtainLocation.localizedDescription, viewController: self)
-                self.locationSearchField.text = "Could not obtain location from current coordinates"
-                return
-            }
-            guard let placemark = placemark?.first else { // country
-                return
-            }
-            print(placemark)
-
-            let inlandWater = placemark.inlandWater ?? ""
-            let ocean = placemark.ocean ?? ""
-            
-            let country = placemark.country ?? ""
-            let countryISO = placemark.isoCountryCode ?? ""
-            var countryInformation = ""
-            if country == "" || countryISO == "" {
-                countryInformation = ""
-            } else {
-                countryInformation = "\(country) (\(countryISO))"
-            }
-            
-            let city = placemark.locality ?? ""
-            
-            let streetName = placemark.thoroughfare ?? ""
-            let streetNumber = placemark.subThoroughfare ?? ""
-            var addressInformation = ""
-            
-            if streetNumber != "" && streetName != "" {
-                addressInformation = "\(streetNumber) \(streetName)"
-            } else if streetNumber == "" && streetName != "" {
-                addressInformation = "\(streetName)"
-            } else {
-                addressInformation = ""
-            }
-            
-            var locationName = ""
-            
-            // Makes sure there is always something sensible displayed
-            // If it is water we have no address and vice versa
-            if inlandWater != ""  {
-                locationName = "\(inlandWater) \(countryInformation)"
-            } else if ocean != "" {
-                locationName = "\(ocean) \(countryInformation)"
-            } else {
-                locationName = "\(addressInformation) \(city) \(countryInformation)"
-            }
-            
-            if locationName != "" {
-                self.locationSearchField.text = locationName
-            } else {
-                self.locationSearchField.text = "Location Unknown"
-            }
-            
-        }
-    }
+//            let inlandWater = placemark.inlandWater ?? ""
+//            let ocean = placemark.ocean ?? ""
+//            
+//            let country = placemark.country ?? ""
+//            let countryISO = placemark.isoCountryCode ?? ""
+//            var countryInformation = ""
+//            if country == "" || countryISO == "" {
+//                countryInformation = ""
+//            } else {
+//                countryInformation = "\(country) (\(countryISO))"
+//            }
+//            
+//            let city = placemark.locality ?? ""
+//            
+//            let streetName = placemark.thoroughfare ?? ""
+//            let streetNumber = placemark.subThoroughfare ?? ""
+//            var addressInformation = ""
+//            
+//            if streetNumber != "" && streetName != "" {
+//                addressInformation = "\(streetNumber) \(streetName)"
+//            } else if streetNumber == "" && streetName != "" {
+//                addressInformation = "\(streetName)"
+//            } else {
+//                addressInformation = ""
+//            }
+//            
+//            var locationName = ""
+//            
+//            // Makes sure there is always something sensible displayed
+//            // If it is water we have no address and vice versa
+//            if inlandWater != ""  {
+//                locationName = "\(inlandWater) \(countryInformation)"
+//            } else if ocean != "" {
+//                locationName = "\(ocean) \(countryInformation)"
+//            } else {
+//                locationName = "\(addressInformation) \(city) \(countryInformation)"
+//            }
+//            
+//            if locationName != "" {
+//                self.locationSearchBar.text = locationName
+//            } else {
+//                self.locationSearchBar.text = "Location Unknown"
+//            }
+//            
+//        }
+//    }
     
 //    private func checkIfInputValid(input: String) -> Bool {
 //        // Check if latitude/longitude is valid input
@@ -558,8 +592,8 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
                 presentAlert(description: ReminderError.missingLongitude.localizedDescription, viewController: self)
                 return
             }
-            guard let locationName = locationSearchField.text, !locationName.isEmpty else {
-                presentAlert(description: ReminderError.missingTitle.localizedDescription, viewController: self)
+            guard let locationName = locationSearchBar.text, !locationName.isEmpty else {
+                presentAlert(description: ReminderError.missingLocationName.localizedDescription, viewController: self)
                 return
             }
             
@@ -579,7 +613,7 @@ class ReminderController: UIViewController {//}, UIScrollViewDelegate {
             
             print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
-            if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationSearchField.text {
+            if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationSearchBar.text {
                 reminder.title = newTitle
                 reminder.message = newMessage
                 reminder.latitude = newLatitude.doubleValue
@@ -680,7 +714,7 @@ extension ReminderController: UITextFieldDelegate {
 //            if text == PlaceHolderText.longitude {
 //                textField.text = ""
 //            }
-        case locationSearchField:
+        case locationSearchBar:
             if text == PlaceHolderText.location {
                 textField.text = ""
             }
@@ -703,9 +737,9 @@ extension ReminderController: UITextFieldDelegate {
                 if input.isEmpty {
                     messageInputField.text = PlaceHolderText.message
                 }
-            case locationSearchField:
+            case locationSearchBar:
                 if input.isEmpty {
-                    locationSearchField.text = PlaceHolderText.location
+                    locationSearchBar.text = PlaceHolderText.location
                 }
 //            case latitudeInputField:
 //                latitudeReceived = false
@@ -761,13 +795,64 @@ extension ReminderController: UITextFieldDelegate {
     }
 }
 
+// MARK: Just added - change input field to searchbar?
+extension ReminderController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        searchCompleter.queryFragment = searchText
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        // MARK: End Editing?
+    }
+}
+
 extension ReminderController: MKLocalSearchCompleterDelegate {
     func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         searchResults = completer.results
-//        searchResultsTableView.reloadData()
+        searchResultsTableView.reloadData()
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
         // MARK: Handle Errors
     }
+}
+
+extension ReminderController: UITableViewDataSource, UITableViewDelegate {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return searchResults.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let searchResult = searchResults[indexPath.row]
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        cell.selectionStyle = .none
+        cell.textLabel?.text = searchResult.title
+        cell.detailTextLabel?.text = searchResult.subtitle
+        cell.textLabel?.textColor = UIColor(named: .tintColor)
+        cell.detailTextLabel?.textColor = UIColor(named: .tintColor)
+//        let cell = searchResultsTableView.dequeueReusableCell(withIdentifier: cellId, for: indexPath)// as! ReminderCell
+        cell.backgroundColor = UIColor(named: .appBackgroundColor)
+//        cell.layer.borderColor = UIColor(named: .objectBorderColor)?.cgColor
+//        cell.layer.borderWidth = 1
+//        cell.selectionStyle = .none
+//        cell.textLabel =
+
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let completion = searchResults[indexPath.row]
+        
+        let searchRequest = MKLocalSearch.Request(completion: completion)
+        let search = MKLocalSearch(request: searchRequest)
+        search.start { (result, error) in
+            let coordinate = result?.mapItems.last?.placemark.coordinate
+            self.latitudeInputField.text = coordinate?.latitude.toString
+            self.longitudeInputField.text = coordinate?.longitude.toString
+            self.locationSearchBar.text = "\(completion.title) in \(completion.subtitle)"
+        }
+    }
+    
+    
+    
 }
