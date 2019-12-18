@@ -42,8 +42,8 @@ class InfoField: CustomTextField {
     override func additionalSettings() {
         textAlignment = .left
         // These are used for postioning
-        layer.borderWidth = Constant.borderWidth // MARK: Delete
-        layer.borderColor = UIColor.yellow.cgColor // MARK: Delete
+//        layer.borderWidth = Constant.borderWidth // MARK: Delete
+//        layer.borderColor = UIColor.yellow.cgColor // MARK: Delete
         font = UIFont.systemFont(ofSize: 13.0, weight: .medium)
     }
     

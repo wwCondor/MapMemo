@@ -19,16 +19,8 @@ class ReminderCell: UITableViewCell {
         setupViews()
     }
     
-//    override func layoutSubviews() {
-//        super.layoutSubviews()
-//        let inset = Constant.cellPadding
-//        let padding = UIEdgeInsets(top: 0, left: 0, bottom: inset, right: 0)
-//        contentView.frame = contentView.frame.inset(by: padding)
-//    }
-    
     lazy var titleInfoField: InfoField = {
         let titleInfoField = InfoField()
-//        titleInfoField.font = UIFont.systemFont(ofSize: 13.0, weight: .semibold)
         titleInfoField.isUserInteractionEnabled = false
         titleInfoField.text = PlaceHolderText.title
         return titleInfoField
@@ -44,6 +36,7 @@ class ReminderCell: UITableViewCell {
     lazy var locationInfoField: InfoField = {
         let locationInfoField = InfoField()
         locationInfoField.isUserInteractionEnabled = false
+        locationInfoField.font = UIFont.systemFont(ofSize: 12.0, weight: .light)
         locationInfoField.text = PlaceHolderText.location
         return locationInfoField
     }()
@@ -114,9 +107,7 @@ class ReminderCell: UITableViewCell {
         contentView.addSubview(bubbleColorView)
         contentView.addSubview(radiusInfoField)
         contentView.addSubview(arrowImage)
-        
-//        contentView.addSubview(touchScreen)
-        
+                
         NSLayoutConstraint.activate([
             titleInfoField.topAnchor.constraint(equalTo: contentView.topAnchor),
             titleInfoField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -153,11 +144,6 @@ class ReminderCell: UITableViewCell {
             arrowImage.trailingAnchor.constraint(equalTo: bubbleColorView.leadingAnchor, constant: Constant.arrowOffset),
             arrowImage.widthAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/4),
             arrowImage.heightAnchor.constraint(equalToConstant: Constant.activeReminderCellSize/4),
-            
-//            touchScreen.topAnchor.constraint(equalTo: contentView.topAnchor),
-//            touchScreen.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-//            touchScreen.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-//            touchScreen.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
     }
 }

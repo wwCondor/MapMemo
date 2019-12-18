@@ -25,28 +25,30 @@ extension AuthorizationError: LocalizedError {
 }
 
 enum ReminderError: Error {
+    case unableToFetchActiveReminders
     case reminderNil
     case missingTitle
     case missingMessage 
     case missingLatitude
     case missingLongitude
     case missingLocationName
-    case invalidLatitude
-    case invalidLongitude
+//    case invalidLatitude
+//    case invalidLongitude
     case unableToObtainLocation
 }
 
 extension ReminderError: LocalizedError {
     public var localizedDescription: String {
         switch self {
+        case .unableToFetchActiveReminders: return "Unable to retrieve active reminders from memory"
         case .reminderNil:                  return "It seems reminder is nil"
         case .missingTitle:                 return "Woops! You forgot to add a title to your reminder"
         case .missingMessage:               return "Woops! You forgot to add a message to your reminder"
         case .missingLatitude:              return "Woops! You forgot to enter a value for the latitude"
         case .missingLongitude:             return "Woops! You forgot to enter a value for the longitude"
         case .missingLocationName:          return "Woops! The location you entered has no location name"
-        case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
-        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
+//        case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
+//        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
         case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
         }
     }

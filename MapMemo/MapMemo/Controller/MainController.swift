@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class MainController: UIViewController {
     
@@ -16,9 +17,16 @@ class MainController: UIViewController {
     let activeReminderController = ActiveRemindersController()
     let managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
     
-//    lazy var fetchedResultsController: FetchedResultsController = {
-//        return FetchedResultsController(managedObjectContext: self.managedObjectContext, tableView: self.savedEntries, request: Reminder.fetchRequest())
-//    }()
+    var reminders: [Reminder] = []
+    
+    private func getActiveReminders() {
+        do {
+            reminders = try managedObjectContext.fetch(NSFetchRequest(entityName: "Reminder"))
+        } catch {
+            presentAlert(description: ReminderError.unableToFetchActiveReminders.localizedDescription, viewController: self)
+        }
+        print(reminders)
+    }
     
     private let locationManager = CLLocationManager()
     
@@ -88,6 +96,9 @@ class MainController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        getActiveReminders()
+        createAnnotations(reminders: reminders)
+        
 //        fetchedResultsController.delegate = self
         memoMap.delegate = self
         
@@ -98,16 +109,19 @@ class MainController: UIViewController {
         checkLocationServices()
     }
     
-    // MARK: Bubbles
-    private func setupAmsterdamBubble() {
-        let amsterdam = MKPointAnnotation()
-        amsterdam.title = "Amsterdam"
-        amsterdam.coordinate = CLLocationCoordinate2D(latitude: 52.3746569, longitude: 4.8903169)
-//        memoMap.addAnnotation(amsterdam)
-        addCircleAroundLocation(coordinate: amsterdam.coordinate, radius: 5000, map: memoMap)
+    private func createAnnotations(reminders: [Reminder]) {
+        if reminders.count != 0 {
+            for reminder in reminders {
+                let annotation = MKPointAnnotation()
+                annotation.title = reminder.title
+                annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
+                addCircleAroundLocation(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
+                memoMap.addAnnotation(annotation)
+            }
+        }
     }
     
-    func addCircleAroundLocation(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+    private func addCircleAroundLocation(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
         let circle = MKCircle(center: coordinate, radius: radius)
         map.addOverlay(circle)
     }
@@ -211,7 +225,7 @@ class MainController: UIViewController {
             locationManager.startUpdatingLocation()
             locationManager.startUpdatingHeading()
             // MARK: Setup Annotations
-            setupAmsterdamBubble()
+            createAnnotations(reminders: reminders)
             break
         @unknown default:
             break
@@ -230,7 +244,6 @@ class MainController: UIViewController {
         print("Launching ReminderController")
         reminderController.modeSelected = .addReminderMode
         reminderController.managedObjectContext = self.managedObjectContext
-//        reminderController.modeSelected = .editReminderMode // For testing editMode
         navigationController?.pushViewController(reminderController, animated: true)
     }
 
@@ -302,6 +315,9 @@ extension MainController: CLLocationManagerDelegate {
 extension MainController: MKMapViewDelegate {
     // This handles the pins around a location
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+//        let annotations = getAnnotations()
+        
+
         guard annotation is MKPointAnnotation else { return nil }
         
         let identifier = "Annotation"
@@ -309,8 +325,15 @@ extension MainController: MKMapViewDelegate {
         
         if annotationView == nil {
             annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
+
+
+            
         } else {
-            annotationView?.annotation = annotation
+//            for annotation in annotations {
+                annotationView?.annotation = annotation
+//            annotationView?.image = UIImage(named: Icon.addIcon.name)
+
+//            }
         }
         
         return annotationView
@@ -318,14 +341,19 @@ extension MainController: MKMapViewDelegate {
     
     // This handles the drawing of a circle around the location
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        if overlay is MKCircle {
-            let circle = MKCircleRenderer(overlay: overlay)
-            circle.strokeColor = UIColor.red
-            circle.fillColor = UIColor.red.withAlphaComponent(0.2)
-            circle.lineWidth = 2
-            return circle
-        } else {
-            return MKPolylineRenderer()
+        if reminders.count != 0 {
+            for reminder in reminders {
+                if overlay is MKCircle {
+                    let circle = MKCircleRenderer(overlay: overlay)
+                    circle.strokeColor = UIColor(named: reminder.bubbleColor)
+                    circle.fillColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.2)
+                    circle.lineWidth = 2
+                    return circle
+                } else {
+//                    return MKPolylineRenderer()
+                }
+            }
         }
+        return MKPolygonRenderer()
     }
 }
