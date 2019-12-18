@@ -13,6 +13,8 @@ import CoreData
 // User adds or edits reminder by editing required information:
 class ReminderController: UIViewController {
     
+    let updateRemindersNotificationKey = Notification.Name(rawValue: Key.updateReminderNotification)
+    
     let cellId = "searchResultsId"
     
     var modeSelected: ModeSelected = .addReminderMode
@@ -243,6 +245,26 @@ class ReminderController: UIViewController {
         }
     }
     
+    func resetReminderInfo() {
+        colorSelected = 0
+        titleInputField.text = PlaceHolderText.title
+        messageInputField.text = PlaceHolderText.message
+        locationSearchBar.text = PlaceHolderText.location
+        latitudeInputField.text = PlaceHolderText.latitude
+        longitudeInputField.text = PlaceHolderText.longitude
+        triggerInfoField.text = ToggleText.leavingTrigger
+        triggerToggle.isOn = false
+        repeatOrNotInfoField.text = ToggleText.isNotRepeating
+        repeatToggle.isOn = false
+        bubbleColorInfoField.text = PlaceHolderText.bubbleColor
+        bubbleRadiusInfoField.text = PlaceHolderText.defaultRadius
+        bubbleColorView.backgroundColor = UIColor(named: bubbleColors[colorSelected])!.withAlphaComponent(0.7)
+        bubbleColorView.layer.borderColor = UIColor(named: bubbleColors[colorSelected])?.cgColor
+        radiusInMeters = 50
+        bubbleRadiusSlider.value = 1
+        searchResultsTableView.reloadData()
+    }
+    
     private func setupView() {
         view.addSubview(saveButton)
         view.addSubview(titleInputField)
@@ -456,6 +478,7 @@ class ReminderController: UIViewController {
             reminder.bubbleRadius = Double(radiusInMeters)
             
             reminder.managedObjectContext?.saveChanges()
+            NotificationCenter.default.post(name: updateRemindersNotificationKey, object: nil)
             
             print("Reminder Saved: \(reminder.title)")
         } else if modeSelected == .editReminderMode {
@@ -472,6 +495,8 @@ class ReminderController: UIViewController {
                 reminder.bubbleRadius = Double(radiusInMeters)
                 
                 reminder.managedObjectContext?.saveChanges()
+                NotificationCenter.default.post(name: updateRemindersNotificationKey, object: nil)
+
                 print("Changes Saved for Reminder: \(reminder.title)")
             } else {
                 if reminder == nil {

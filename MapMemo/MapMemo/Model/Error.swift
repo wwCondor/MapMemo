@@ -35,6 +35,7 @@ enum ReminderError: Error {
 //    case invalidLatitude
 //    case invalidLongitude
     case unableToObtainLocation
+    case maxRemindersReached
 }
 
 extension ReminderError: LocalizedError {
@@ -50,6 +51,21 @@ extension ReminderError: LocalizedError {
 //        case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
 //        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
         case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
+        case .maxRemindersReached:          return "Maximum active reminders (20) reached. You need to delete a reminder first"
+        }
+    }
+}
+
+enum NotificationError: Error {
+    case alertSettingNotEnabled
+    case unableToAddNotificationRequest
+}
+
+extension NotificationError: LocalizedError {
+    public var localizedDescription: String {
+        switch self {
+        case .alertSettingNotEnabled:           return "Notification alerts disabled. This can be changed in phone settings"
+        case .unableToAddNotificationRequest:   return "Unable to add the notification request"
         }
     }
 }

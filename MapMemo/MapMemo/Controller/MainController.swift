@@ -9,8 +9,12 @@
 import UIKit
 import MapKit
 import CoreData
+import CoreLocation
+import UserNotifications
 
 class MainController: UIViewController {
+    
+    let updateRemindersNotificationKey = Notification.Name(rawValue: Key.updateReminderNotification)
     
 //    let addReminderController = AddReminderController()
     let reminderController = ReminderController()
@@ -34,8 +38,7 @@ class MainController: UIViewController {
     
     let regionInMeters: Double = 5000
 
-//    let appDelegate = UIApplication.shared.delegate as? AppDelegate
-    let notificationManager = NotificationManager.shared//.notificationCenter
+    let notificationManager = NotificationManager.shared
     
     lazy var memoMap: MKMapView = {
         let memoMap = MKMapView()
@@ -95,12 +98,15 @@ class MainController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        addObserver()
         
         getActiveReminders()
-        createAnnotations(reminders: reminders)
+        loadReminders(reminders: reminders)
+//        notificationManager.createLocalNotification(notificationInfo: reminders)
         
 //        fetchedResultsController.delegate = self
         memoMap.delegate = self
+        
         
         view.backgroundColor = UIColor(named: .appBackgroundColor)
     
@@ -109,14 +115,70 @@ class MainController: UIViewController {
         checkLocationServices()
     }
     
-    private func createAnnotations(reminders: [Reminder]) {
+    private func addObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(updateReminders(sender:)), name: updateRemindersNotificationKey, object: nil)
+    }
+    
+    @objc func updateReminders(sender: NotificationCenter) {
+        print("Updating Reminders")
+    }
+    
+    private func updateReminders() {
+        
+    }
+    
+    private func removeAllReminders(reminders: [Reminder]) {
+        
+    }
+    
+    private func loadReminders(reminders: [Reminder]) {
         if reminders.count != 0 {
             for reminder in reminders {
+                // Add Annotation for each
                 let annotation = MKPointAnnotation()
                 annotation.title = reminder.title
                 annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
-                addCircleAroundLocation(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
                 memoMap.addAnnotation(annotation)
+
+                // Add bubble visual
+                addCircleAroundLocation(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
+                
+                // Add bubble monitoring
+                let circularRegion = CLCircularRegion.init(center: annotation.coordinate, radius: reminder.bubbleRadius, identifier: reminder.title)
+                if reminder.triggerWhenEntering == true {
+                    circularRegion.notifyOnEntry = true
+                    circularRegion.notifyOnExit = false
+                } else if reminder.triggerWhenEntering == false {
+                    circularRegion.notifyOnEntry = false
+                    circularRegion.notifyOnExit = true
+                }
+                locationManager.startMonitoring(for: circularRegion)
+//                notificationManager.createLocalNotification(reminder: reminder)
+//                notificationManager.destinationRegion(reminder: reminder)
+            }
+        }
+    }
+    
+    private func fireNotification(reminder: Reminder) {
+        let notificationCenter = UNUserNotificationCenter.current()
+        
+        notificationManager.notificationCenter.getNotificationSettings { (settings) in
+            if settings.alertSetting == .enabled {
+                let content = UNMutableNotificationContent()
+                content.title = reminder.title
+                content.body = reminder.message
+                content.sound = UNNotificationSound.default
+                
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+                let request = UNNotificationRequest(identifier: reminder.title, content: content, trigger: trigger)
+                
+                notificationCenter.add(request) { (error) in
+                    if error != nil {
+                        self.presentAlert(description: NotificationError.alertSettingNotEnabled.localizedDescription, viewController: self)
+                    }
+                }
+            } else {
+                self.presentFailedPermissionActionSheet(description: NotificationError.unableToAddNotificationRequest.localizedDescription, viewController: self)
             }
         }
     }
@@ -225,7 +287,7 @@ class MainController: UIViewController {
             locationManager.startUpdatingLocation()
             locationManager.startUpdatingHeading()
             // MARK: Setup Annotations
-            createAnnotations(reminders: reminders)
+            loadReminders(reminders: reminders)
             break
         @unknown default:
             break
@@ -241,10 +303,15 @@ class MainController: UIViewController {
     }
     
     @objc func presentReminderController(sender: Any?) {
-        print("Launching ReminderController")
-        reminderController.modeSelected = .addReminderMode
-        reminderController.managedObjectContext = self.managedObjectContext
-        navigationController?.pushViewController(reminderController, animated: true)
+        if reminders.count <= 20 {
+            print("Launching ReminderController")
+            reminderController.modeSelected = .addReminderMode
+            reminderController.managedObjectContext = self.managedObjectContext
+            reminderController.resetReminderInfo()
+            navigationController?.pushViewController(reminderController, animated: true)
+        } else {
+            presentAlert(description: ReminderError.maxRemindersReached.localizedDescription, viewController: self)
+        }
     }
 
     @objc private func presentActiveRemindersController(sender: UIBarButtonItem) {
@@ -259,6 +326,10 @@ class MainController: UIViewController {
         if let settingsURL = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!) {
             UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
         }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }
 
@@ -285,13 +356,7 @@ extension MainController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         checkLocationAuthorization()
     }
-    
-    // MARK: Add Annotations
-    func setLocationTriggerRegion() {
-        
-    }
 
-    // MARK: Use?
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         // Do something when user enters region
     }
@@ -300,15 +365,7 @@ extension MainController: CLLocationManagerDelegate {
         // Do something when user leaves region
     }
     
-    func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
-        // informs delegate one or more beacons are in ranges
-    }
-    
 
-    
-    func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
-        // Informs delegate that a beacon satisfying the constraints has been triggered
-    }
 }
 
 // MARK: Annotations

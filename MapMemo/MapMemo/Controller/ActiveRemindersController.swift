@@ -12,6 +12,8 @@ import CoreData
 // tapping a reminder name presents editReminderController
 class ActiveRemindersController: UIViewController {
     
+    let updateRemindersNotificationKey = Notification.Name(rawValue: Key.updateReminderNotification)
+    
     let reminderController = ReminderController()
     
     var managedObjectContext: NSManagedObjectContext! // MARK: Added - Test
@@ -142,6 +144,7 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
             reminder.managedObjectContext?.saveChanges()
         }
         activeReminders.reloadData()
+        NotificationCenter.default.post(name: updateRemindersNotificationKey, object: nil)
 
 //        if (editingStyle == .delete) {
 //            reminders.remove(at: indexPath.row)

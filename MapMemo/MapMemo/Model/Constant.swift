@@ -44,3 +44,7 @@ struct ToggleText {
     static let isRepeating: String      = "Repeat"
     static let isNotRepeating: String   = "Use Once"
 }
+
+struct Key {
+    static let updateReminderNotification = "updateReminders"
+}

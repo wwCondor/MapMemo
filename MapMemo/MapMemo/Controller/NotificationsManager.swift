@@ -23,54 +23,54 @@ final class NotificationManager: NSObject {
     var notificationAuthorizationApproved: Bool = false
     var locationAuthorizationApproved: Bool = false
 
-    func createLocalNotification(notificationInfo: MapMemoStub) {
-        let content = UNMutableNotificationContent()
-        
-        let userActions = "User Actions"
-        
-        //        let request = UNNotificationRequest(identifier: "FiveSecond", content: content, trigger: trigger) // Schedule the notification.
-        
-//        let date = Date(timeIntervalSinceNow: 15)
-//        let triggerDate = Calendar.current.dateComponents([.second], from: date)
-//        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
-        content.title = notificationInfo.title
-        content.body = notificationInfo.message
-        content.sound = .default
-//        content.badge = 1
-        
-        content.categoryIdentifier = userActions
-        content.launchImageName = Icon.activeReminderIcon.name
-        //        content.
-        //        UNNotificationRequest.localNotification
-        
-        let snoozeAction = UNNotificationAction(identifier: "Snooze", title: "Snooze", options: [])
-        let showMapAction = UNNotificationAction(identifier: "ShowReminder", title: "Show Reminder", options: [.foreground])
-        
-        //        let trigger = UNLocationNotificationTrigger(triggerWithRegion: region, repeats: false)
-        
-        let category = UNNotificationCategory(identifier: userActions, actions: [snoozeAction, showMapAction], intentIdentifiers: [], options: [])
-        
-        notificationCenter.setNotificationCategories([category])
-    }
+//    func createLocalNotification(reminder: Reminder) {
+//        let content = UNMutableNotificationContent()
+//
+//        let userActions = "User Actions"
+//
+//        //        let request = UNNotificationRequest(identifier: "FiveSecond", content: content, trigger: trigger) // Schedule the notification.
+//
+////        let date = Date(timeIntervalSinceNow: 15)
+////        let triggerDate = Calendar.current.dateComponents([.second], from: date)
+////        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerDate, repeats: false)
+//        content.title = reminder.title
+//        content.body = reminder.message
+//        content.sound = .default
+////        content.badge = 1
+//
+//        content.categoryIdentifier = userActions
+//        content.launchImageName = Icon.activeReminderIcon.name
+//        //        content.
+//        //        UNNotificationRequest.localNotification
+//
+////        let snoozeAction = UNNotificationAction(identifier: "Snooze", title: "Snooze", options: [])
+//        let showMapAction = UNNotificationAction(identifier: "ShowReminder", title: "Show Reminder", options: [.foreground])
+//
+//        //        let trigger = UNLocationNotificationTrigger(triggerWithRegion: region, repeats: false)
+//
+//        let category = UNNotificationCategory(identifier: userActions, actions: [showMapAction], intentIdentifiers: [], options: [])
+//
+//        notificationCenter.setNotificationCategories([category])
+//    }
     
-    func destinationRegion(notificationInfo: MapMemoStub) -> CLCircularRegion {
-        let lattitude = notificationInfo.coordinate.lattitude
-        let longitude = notificationInfo.coordinate.longitude
-                
-        let destinationRegion = CLCircularRegion(center: CLLocationCoordinate2DMake(lattitude, longitude),
-                                                 radius: CLLocationDistance(notificationInfo.bubbleRadius),
-                                                 identifier: notificationInfo.locationId)
-        
-        if notificationInfo.triggerWhenEntering == true {
-            destinationRegion.notifyOnEntry = true
-            destinationRegion.notifyOnExit = false
-        } else if notificationInfo.triggerWhenEntering == false {
-            destinationRegion.notifyOnEntry = false
-            destinationRegion.notifyOnExit = true
-        }
-        
-        return destinationRegion
-    }
+//    func destinationRegion(reminder: Reminder) -> CLCircularRegion {
+//        let latitude = reminder.latitude
+//        let longitude = reminder.longitude
+//                
+//        let destinationRegion = CLCircularRegion(center: CLLocationCoordinate2DMake(latitude, longitude),
+//                                                 radius: CLLocationDistance(reminder.bubbleRadius),
+//                                                 identifier: reminder.title)
+//        
+//        if reminder.triggerWhenEntering == true {
+//            destinationRegion.notifyOnEntry = true
+//            destinationRegion.notifyOnExit = false
+//        } else if reminder.triggerWhenEntering == false {
+//            destinationRegion.notifyOnEntry = false
+//            destinationRegion.notifyOnExit = true
+//        }
+//        
+//        return destinationRegion
+//    }
 
 }
 

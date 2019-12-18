@@ -21,7 +21,7 @@ extension Reminder {
     }
 
     @NSManaged public var title: String
-    @NSManaged public var message: String?
+    @NSManaged public var message: String
     @NSManaged public var latitude: Double
     @NSManaged public var longitude: Double
     @NSManaged public var locationName: String
