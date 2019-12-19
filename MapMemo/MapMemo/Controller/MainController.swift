@@ -36,7 +36,7 @@ class MainController: UIViewController {
     
     var lastLocation: CLLocation?
     
-    let regionInMeters: Double = 5000
+    let regionInMeters: Double = 5000 // This is how zoomed in the map is around user
 
     let notificationManager = NotificationManager.shared
     
@@ -120,15 +120,38 @@ class MainController: UIViewController {
     }
     
     @objc func updateReminders(sender: NotificationCenter) {
-        print("Updating Reminders")
+        print("Refreshing Reminders")
+        removeAllReminders()
+        getActiveReminders()
+        loadReminders(reminders: reminders)
     }
     
-    private func updateReminders() {
-        
-    }
-    
-    private func removeAllReminders(reminders: [Reminder]) {
-        
+    private func removeAllReminders() {
+        for reminder in reminders {
+            // Remove annotation
+            let annotation = MKPointAnnotation()
+            annotation.title = reminder.title
+            annotation.subtitle = reminder.message
+            annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
+            memoMap.removeAnnotation(annotation)
+
+            // Remove bubble visual
+            removeLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
+            
+            // Stop monitoring for region
+            let circularRegion = CLCircularRegion.init(center: annotation.coordinate,
+                                                       radius: reminder.bubbleRadius,
+                                                       identifier: reminder.title)
+            if reminder.triggerWhenEntering == true {
+                circularRegion.notifyOnEntry = true
+                circularRegion.notifyOnExit = false
+            } else if reminder.triggerWhenEntering == false {
+                circularRegion.notifyOnEntry = false
+                circularRegion.notifyOnExit = true
+            }
+            locationManager.stopMonitoring(for: circularRegion)
+        }
+        print("Cleared annotations, bubbles and monitoring")
     }
     
     private func loadReminders(reminders: [Reminder]) {
@@ -137,14 +160,17 @@ class MainController: UIViewController {
                 // Add Annotation for each
                 let annotation = MKPointAnnotation()
                 annotation.title = reminder.title
+                annotation.subtitle = reminder.message
                 annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
                 memoMap.addAnnotation(annotation)
 
                 // Add bubble visual
-                addCircleAroundLocation(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
+                addLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
                 
-                // Add bubble monitoring
-                let circularRegion = CLCircularRegion.init(center: annotation.coordinate, radius: reminder.bubbleRadius, identifier: reminder.title)
+                // Add GeoFence to Region
+                let circularRegion = CLCircularRegion.init(center: annotation.coordinate,
+                                                           radius: reminder.bubbleRadius,
+                                                           identifier: reminder.title)
                 if reminder.triggerWhenEntering == true {
                     circularRegion.notifyOnEntry = true
                     circularRegion.notifyOnExit = false
@@ -153,24 +179,30 @@ class MainController: UIViewController {
                     circularRegion.notifyOnExit = true
                 }
                 locationManager.startMonitoring(for: circularRegion)
-//                notificationManager.createLocalNotification(reminder: reminder)
-//                notificationManager.destinationRegion(reminder: reminder)
+                print("Reminder added: \(reminder.title)")
             }
         }
     }
     
-    private func fireNotification(reminder: Reminder) {
+    private func handleNotification(notificationText: String, didEnter: Bool, forRegion region: CLRegion) {
         let notificationCenter = UNUserNotificationCenter.current()
         
         notificationManager.notificationCenter.getNotificationSettings { (settings) in
             if settings.alertSetting == .enabled {
                 let content = UNMutableNotificationContent()
-                content.title = reminder.title
-                content.body = reminder.message
+                content.title = didEnter ? "Entered Region" : "Exited Region"
+                content.body = notificationText
                 content.sound = UNNotificationSound.default
                 
-                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
-                let request = UNNotificationRequest(identifier: reminder.title, content: content, trigger: trigger)
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
+                                                                repeats: false)
+                
+                // MARK: Todo: Ensure Unique
+                let identifier = region.identifier // region.identifier is reminder.title
+                
+                let request = UNNotificationRequest(identifier:identifier,
+                                                    content: content,
+                                                    trigger: trigger)
                 
                 notificationCenter.add(request) { (error) in
                     if error != nil {
@@ -183,9 +215,20 @@ class MainController: UIViewController {
         }
     }
     
-    private func addCircleAroundLocation(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+    private func removeNotifications() {
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        print("Removed all delivered and pending notifications")
+    }
+    
+    private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
         let circle = MKCircle(center: coordinate, radius: radius)
         map.addOverlay(circle)
+    }
+    
+    private func removeLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+        let circle = MKCircle(center: coordinate, radius: radius)
+        map.removeOverlay(circle)
     }
     
     private func setupView() {
@@ -230,7 +273,6 @@ class MainController: UIViewController {
         locationManager.distanceFilter = 25
     }
     
-    // MARK: Needs testing
     private func updateSettingsShortcutAccess() {
         // If we have no authorization we present the settings shortcut
         if notificationManager.locationAuthorizationApproved == false {
@@ -303,7 +345,7 @@ class MainController: UIViewController {
     }
     
     @objc func presentReminderController(sender: Any?) {
-        if reminders.count <= 20 {
+        if reminders.count < 20 {
             print("Launching ReminderController")
             reminderController.modeSelected = .addReminderMode
             reminderController.managedObjectContext = self.managedObjectContext
@@ -357,24 +399,20 @@ extension MainController: CLLocationManagerDelegate {
         checkLocationAuthorization()
     }
 
+    // Called when region is entered
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
-        // Do something when user enters region
+        handleNotification(notificationText: "Arrived at: \(region.identifier) region", didEnter: true, forRegion: region)
     }
     
+    // Called when region is exited
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
-        // Do something when user leaves region
+        handleNotification(notificationText: "Left: \(region.identifier) region", didEnter: false, forRegion: region)
     }
-    
-
 }
 
-// MARK: Annotations
 extension MainController: MKMapViewDelegate {
-    // This handles the pins around a location
+    // MARK: Handles Pins
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-//        let annotations = getAnnotations()
-        
-
         guard annotation is MKPointAnnotation else { return nil }
         
         let identifier = "Annotation"
@@ -382,21 +420,13 @@ extension MainController: MKMapViewDelegate {
         
         if annotationView == nil {
             annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-
-
-            
         } else {
-//            for annotation in annotations {
-                annotationView?.annotation = annotation
-//            annotationView?.image = UIImage(named: Icon.addIcon.name)
-
-//            }
+            annotationView?.annotation = annotation
         }
-        
         return annotationView
     }
     
-    // This handles the drawing of a circle around the location
+    // MARK: Handles Bubble Drawing
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if reminders.count != 0 {
             for reminder in reminders {

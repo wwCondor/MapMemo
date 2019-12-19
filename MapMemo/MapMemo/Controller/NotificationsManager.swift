@@ -75,7 +75,7 @@ final class NotificationManager: NSObject {
 }
 
 // MARK: Notification Center Delegate
-extension NotificationManager: UNUserNotificationCenterDelegate {
+extension NotificationManager: UNUserNotificationCenterDelegate { 
     
         // Request Authorization
         func requestNotificationAuthorization() {
@@ -86,7 +86,6 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
                 if authorizationGranted == false {
                     self.notificationAuthorizationApproved = false
                     print("Notification authorization declined")
-                    // Inform rest of app to change UI accordingly
                 } else if authorizationGranted == true {
                     print("Notification authorization granted")
                     self.notificationAuthorizationApproved = true
@@ -100,7 +99,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
                 print("Checking Notification Authorization")
                 if settings.authorizationStatus != .authorized {
                     self.notificationAuthorizationApproved = false
-                    print("Notification authorization declined") // MARK: Handle
+                    print("Notification authorization declined")
                     // Notifications not allowed
                 } else {
                     self.notificationAuthorizationApproved = true
@@ -114,8 +113,9 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         completionHandler([.alert, .sound])
     }
     
-    // When user taps notification app opens by default
-    // Npt sure if we actually need this
+    // MARK: Extra Feature
+    // When user taps notification we could direct user to center of region
+    // Idea: If user agrees we could have another "compass" that instead of pointing north points to location center
     // This enables a response to the notification
 //    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
 //        if response.notification.request.identifier == "Local Notification" {

@@ -9,30 +9,26 @@
 import UIKit
 import CoreData
 import UserNotifications
+import CoreLocation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var locationManager: CLLocationManager?
 
 //    let localNotificationCenter = UNUserNotificationCenter.current()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
+        locationManager = CLLocationManager()
+//        locationManager!.delegate = self
+        
         let notifications = NotificationManager.shared
         notifications.notificationCenter.delegate = notifications
         notifications.requestNotificationAuthorization()
-    
-//        notifications.notificationCenter.delegate = notifications
-        
-//        localNotificationCenter.delegate = self
         
         let navigationBarAppearance = UINavigationBar.appearance()
-        
-//        requestAuthorization()
-        
-//        createLocalNotification(notificationType: "Whatever")
-
         navigationBarAppearance.barTintColor = UIColor(named: .objectColor) // Bar background color
         navigationBarAppearance.tintColor = UIColor(named: .tintColor) // Tintcolor text and icons
         navigationBarAppearance.isTranslucent = false
@@ -91,5 +87,18 @@ extension NSManagedObjectContext {
                 fatalError("Error: \(error.localizedDescription)")
             }
         }
-    }
+    } 
 }
+
+//extension AppDelegate: CLLocationManagerDelegate {
+//        func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
+//            if region is CLCircularRegion {
+//            }
+//            // Do something when user enters region
+//        }
+//        
+//        func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
+//            // Do something when user leaves region
+//        }
+//    
+//}

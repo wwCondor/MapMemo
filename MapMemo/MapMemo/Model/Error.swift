@@ -36,6 +36,7 @@ enum ReminderError: Error {
 //    case invalidLongitude
     case unableToObtainLocation
     case maxRemindersReached
+    case titleIsDuplicate
 }
 
 extension ReminderError: LocalizedError {
@@ -52,6 +53,7 @@ extension ReminderError: LocalizedError {
 //        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
         case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
         case .maxRemindersReached:          return "Maximum active reminders (20) reached. You need to delete a reminder first"
+        case .titleIsDuplicate:             return "Unable to save reminder. Reminder title already exists."
         }
     }
 }

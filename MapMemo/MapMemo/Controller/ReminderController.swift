@@ -441,6 +441,26 @@ class ReminderController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
+//    private func getActiveReminders() -> [Reminder] {
+//        var reminders: [Reminder] = []
+//        do {
+//            reminders = try managedObjectContext.fetch(NSFetchRequest(entityName: "Reminder"))
+//        } catch {
+//            presentAlert(description: ReminderError.unableToFetchActiveReminders.localizedDescription, viewController: self)
+//        }
+//        return reminders
+//    }
+//
+//    private func getActiveReminderTitles() -> [String] {
+//        let reminders: [Reminder] = getActiveReminders()
+//        var reminderTitles: [String] = []
+//        for reminder in reminders {
+//            reminderTitles.append(reminder.title)
+//        }
+//        print(reminderTitles)
+//        return reminderTitles
+//    }
+    
     // MARK: Save
     @objc private func saveReminder(sender: UIButton!) {
         if modeSelected == .addReminderMode {
