@@ -25,7 +25,7 @@ class ReminderController: UIViewController {
     var searchResults = [MKLocalSearchCompletion]()
     
     var colorSelected = 0
-    var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name]
+    var bubbleColors: [String] = [Color.bubbleRed.name, Color.bubbleYellow.name, Color.bubbleBlue.name, Color.bubbleOrange.name, Color.bubblePink.name, Color.bubbleGreen.name]
     
     var radiusInMeters: Double = 50
     
@@ -269,10 +269,10 @@ class ReminderController: UIViewController {
         view.addSubview(saveButton)
         view.addSubview(titleInputField)
         view.addSubview(messageInputField)
-        view.addSubview(longitudeInputField)
-        view.addSubview(searchResultsTableView)
-        view.addSubview(latitudeInputField)
         view.addSubview(locationSearchBar)
+        view.addSubview(searchResultsTableView)
+        view.addSubview(longitudeInputField)
+        view.addSubview(latitudeInputField)
         view.addSubview(triggerInfoField)
         view.addSubview(triggerToggle)
         view.addSubview(repeatOrNotInfoField)
@@ -318,7 +318,6 @@ class ReminderController: UIViewController {
             searchResultsTableView.topAnchor.constraint(equalTo: locationSearchBar.bottomAnchor),
             searchResultsTableView.bottomAnchor.constraint(equalTo: latitudeInputField.topAnchor),
             searchResultsTableView.widthAnchor.constraint(equalToConstant: view.bounds.width),
-            searchResultsTableView.heightAnchor.constraint(equalToConstant: Constant.searchResultsTableSize),
 
             latitudeInputField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             latitudeInputField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),

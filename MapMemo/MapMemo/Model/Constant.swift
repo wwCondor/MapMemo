@@ -14,7 +14,6 @@ struct Constant {
     static let textYInset: CGFloat                  = 5     // ActiveReminders: radiusInfoField y inset
     static let borderWidth: CGFloat                 = 2
     static let inputFieldSize: CGFloat              = 50    // ReminderController input field height
-    static let searchResultsTableSize: CGFloat      = Constant.inputFieldSize*2
     static let activeReminderCellSize: CGFloat      = 90    // ActiveRemindersController cell height
     static let activeReminderContentHeight: CGFloat = Constant.activeReminderCellSize/3
     static let activeReminderOffset: CGFloat        = Constant.activeReminderCellSize/4
@@ -31,9 +30,6 @@ struct PlaceHolderText {
     static let latitude: String           = "Latitude"
     static let longitude: String          = "Longitude"
     static let location: String           = "Search Location"
-//    static let unknownLocation: String    = "Unknown Location"
-//    static let locationLatitude: String   = "Enter latitude to show location"
-//    static let locationLongitude: String  = "Enter longitude to show location"
     static let bubbleColor: String        = "Bubble Color"
     static let defaultRadius: String      = "Bubble radius: 50m"
 }

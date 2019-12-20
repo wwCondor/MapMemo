@@ -101,7 +101,7 @@ class MainController: UIViewController {
         addObserver()
         
         getActiveReminders()
-        loadReminders(reminders: reminders)
+//        loadReminders(reminders: reminders)
 //        notificationManager.createLocalNotification(notificationInfo: reminders)
         
 //        fetchedResultsController.delegate = self
@@ -123,49 +123,52 @@ class MainController: UIViewController {
         print("Refreshing Reminders")
         removeAllReminders()
         getActiveReminders()
-        loadReminders(reminders: reminders)
+        createReminders(reminders: reminders)
     }
     
     private func removeAllReminders() {
-        for reminder in reminders {
-            // Remove annotation
-            let annotation = MKPointAnnotation()
-            annotation.title = reminder.title
-            annotation.subtitle = reminder.message
-            annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
-            memoMap.removeAnnotation(annotation)
-
-            // Remove bubble visual
-            removeLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
-            
-            // Stop monitoring for region
-            let circularRegion = CLCircularRegion.init(center: annotation.coordinate,
-                                                       radius: reminder.bubbleRadius,
-                                                       identifier: reminder.title)
-            if reminder.triggerWhenEntering == true {
-                circularRegion.notifyOnEntry = true
-                circularRegion.notifyOnExit = false
-            } else if reminder.triggerWhenEntering == false {
-                circularRegion.notifyOnEntry = false
-                circularRegion.notifyOnExit = true
-            }
-            locationManager.stopMonitoring(for: circularRegion)
+        reminders.removeAll()
+        memoMap.removeOverlays(memoMap.overlays)
+        memoMap.removeAnnotations(memoMap.annotations)
+        let regions = locationManager.monitoredRegions
+        for region in regions {
+            locationManager.stopMonitoring(for: region)
         }
-        print("Cleared annotations, bubbles and monitoring")
+
+//        for reminder in reminders {
+//            let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+//                                                       radius: reminder.bubbleRadius,
+//                                                       identifier: reminder.title)
+//
+//            locationManager.stopMonitoring(for: circularRegion)
+//        }
+//        print("Cleared annotations, bubbles and monitoring")
+        print("***")
+        print("Regions currently monitored: \(locationManager.monitoredRegions.count)")
+        print("***")
     }
     
-    private func loadReminders(reminders: [Reminder]) {
+//    private func removeLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+//        let circle = MKCircle(center: coordinate, radius: radius)
+//        map.removeOverlay(circle)
+//        map.reloadInputViews()
+//    }
+    
+    private func createReminders(reminders: [Reminder]) {
         if reminders.count != 0 {
             for reminder in reminders {
                 // Add Annotation for each
-                let annotation = MKPointAnnotation()
+                let annotation = CustomPointAnnotation()
                 annotation.title = reminder.title
                 annotation.subtitle = reminder.message
+                annotation.pinTintColor = UIColor(named: reminder.bubbleColor)
                 annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
                 memoMap.addAnnotation(annotation)
 
                 // Add bubble visual
+//                addLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, colorName: reminder.bubbleColor, map: memoMap)
                 addLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
+
                 
                 // Add GeoFence to Region
                 let circularRegion = CLCircularRegion.init(center: annotation.coordinate,
@@ -178,10 +181,13 @@ class MainController: UIViewController {
                     circularRegion.notifyOnEntry = false
                     circularRegion.notifyOnExit = true
                 }
-                locationManager.startMonitoring(for: circularRegion)
                 print("Reminder added: \(reminder.title)")
+                locationManager.startMonitoring(for: circularRegion)
             }
         }
+        print("***")
+        print("Regions currently monitored: \(locationManager.monitoredRegions.count)")
+        print("***")
     }
     
     private func handleNotification(notificationText: String, didEnter: Bool, forRegion region: CLRegion) {
@@ -224,12 +230,16 @@ class MainController: UIViewController {
     private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
         let circle = MKCircle(center: coordinate, radius: radius)
         map.addOverlay(circle)
+        map.reloadInputViews()
     }
     
-    private func removeLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
-        let circle = MKCircle(center: coordinate, radius: radius)
-        map.removeOverlay(circle)
-    }
+//    private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, colorName: String, map: MKMapView) {
+//        let circle = Bubble(center: coordinate, radius: radius)
+//        circle.bubbleColor = UIColor(named: colorName)
+//        map.addOverlay(circle)
+//    }
+    
+
     
     private func setupView() {
         view.addSubview(memoMap)
@@ -329,7 +339,7 @@ class MainController: UIViewController {
             locationManager.startUpdatingLocation()
             locationManager.startUpdatingHeading()
             // MARK: Setup Annotations
-            loadReminders(reminders: reminders)
+            createReminders(reminders: reminders)
             break
         @unknown default:
             break
@@ -416,31 +426,51 @@ extension MainController: MKMapViewDelegate {
         guard annotation is MKPointAnnotation else { return nil }
         
         let identifier = "Annotation"
-        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: identifier) as? MKPinAnnotationView
         
-        if annotationView == nil {
+        if annotationView == nil { // This means we have no annotations we can recycle
             annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: identifier)
-        } else {
+            annotationView?.isEnabled = true
+            annotationView?.canShowCallout = true
+        } else { // This means we can recycle an annotation
             annotationView?.annotation = annotation
         }
+        if let annotation = annotation as? CustomPointAnnotation {
+            annotationView?.pinTintColor = annotation.pinTintColor
+        }
+        
         return annotationView
     }
     
     // MARK: Handles Bubble Drawing
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        if reminders.count != 0 {
-            for reminder in reminders {
-                if overlay is MKCircle {
-                    let circle = MKCircleRenderer(overlay: overlay)
-                    circle.strokeColor = UIColor(named: reminder.bubbleColor)
-                    circle.fillColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.2)
-                    circle.lineWidth = 2
-                    return circle
-                } else {
-//                    return MKPolylineRenderer()
-                }
-            }
-        }
-        return MKPolygonRenderer()
+//        let annotations = memoMap.annotations
+//        for annotation in annotations {
+//            let colorName = annotation.description
+        let bubble  = MKCircleRenderer(overlay: overlay)
+        bubble.strokeColor = UIColor(named: .objectColor)
+        bubble.fillColor = UIColor(named: .objectColor)!.withAlphaComponent(0.2)
+        bubble.lineWidth = 2
+        return bubble
+//        }
+//        if reminders.count != 0 {
+//            for reminder in reminders {
+//                if overlay is MKCircle {
+//                    let circle = MKCircleRenderer(overlay: overlay)
+//                    circle.strokeColor = UIColor(named: reminder.bubbleColor)
+//                    circle.fillColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.2)
+//                    circle.lineWidth = 2
+//                    return circle
+//                } else {
+////                    return MKPolylineRenderer()
+//                }
+//            }
+//        }
+//        return MKPolygonRenderer()
     }
 }
+
+class CustomPointAnnotation: MKPointAnnotation {
+    var pinTintColor: UIColor?
+}
+

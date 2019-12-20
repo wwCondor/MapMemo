@@ -13,12 +13,18 @@ enum Color {
     case bubbleRed
     case bubbleYellow
     case bubbleBlue
+    case bubbleOrange
+    case bubblePink
+    case bubbleGreen
 
     var name: String {
         switch self {
         case .bubbleRed:      return "BubbleRed"
         case .bubbleYellow:   return "BubbleYellow"
         case .bubbleBlue:     return "BubbleBlue"
+        case .bubbleOrange:   return "BubbleOrange"
+        case .bubblePink:     return "BubblePink"
+        case .bubbleGreen:    return "BubbleGreen"
         }
     }
 }
