@@ -25,6 +25,7 @@ extension AuthorizationError: LocalizedError {
 }
 
 enum ReminderError: Error {
+    case fetchReminder
     case unableToFetchActiveReminders
     case reminderNil
     case missingTitle
@@ -42,6 +43,7 @@ enum ReminderError: Error {
 extension ReminderError: LocalizedError {
     public var localizedDescription: String {
         switch self {
+        case .fetchReminder:                return "Unable to fetch reminder by location name"
         case .unableToFetchActiveReminders: return "Unable to retrieve active reminders from memory"
         case .reminderNil:                  return "It seems reminder is nil"
         case .missingTitle:                 return "Woops! You forgot to add a title to your reminder"

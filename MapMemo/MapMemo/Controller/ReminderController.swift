@@ -249,7 +249,8 @@ class ReminderController: UIViewController {
         colorSelected = 0
         titleInputField.text = PlaceHolderText.title
         messageInputField.text = PlaceHolderText.message
-        locationSearchBar.text = PlaceHolderText.location
+        locationSearchBar.placeholder = PlaceHolderText.location
+        locationSearchBar.text = ""
         latitudeInputField.text = PlaceHolderText.latitude
         longitudeInputField.text = PlaceHolderText.longitude
         triggerInfoField.text = ToggleText.leavingTrigger

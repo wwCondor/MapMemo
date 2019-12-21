@@ -120,8 +120,8 @@
 				0BA9CF05239E501700ACB8E3 /* MainController.swift */,
 				0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */,
 				0BA9CF27239E71BE00ACB8E3 /* ActiveRemindersController.swift */,
-				0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */,
 				0B11C08423A509DB00E81DAA /* FetchedResultsController.swift */,
+				0BA9CF30239ED06900ACB8E3 /* NotificationsManager.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";

@@ -11,7 +11,7 @@ import UIKit
 
 class FetchedResultsController: NSFetchedResultsController<Reminder> {
     // Object responsible for performing fetch on the entries
-    private let tableView: UITableView
+    private let tableView: UITableView 
     
     
     
