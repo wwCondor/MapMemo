@@ -44,6 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func handleNotification(for region: CLRegion) {
 //    func handleNotification(notificationText: String, didEnter: Bool, for region: CLRegion) {
         guard let reminder = managedObjectContext.fetchReminder(with: region.identifier, context: managedObjectContext) else {
+            // We end up here when if we can't fetch reminder
             if UIApplication.shared.applicationState == .active {
                 presentAlert(description: ReminderError.fetchReminder.localizedDescription)
             }
@@ -64,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let triggerCondition = reminder.triggerWhenEntering ? "Entered Region" : "Exited Region"
             content.title = reminder.title
             content.body = "\(triggerCondition) \(reminder.locationName): \(reminder.message)"
+            print(content.body)
             content.sound = UNNotificationSound.default
             
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
@@ -242,24 +244,24 @@ extension AppDelegate {
         }
     }
     
-    func presentFailedPermissionActionSheet(description: String) {
-        // Actionsheet
-        let actionSheet = UIAlertController(title: nil, message: description, preferredStyle: .actionSheet)
-        
-        actionSheet.addAction(UIAlertAction(title: "Ok, take me to Settings", style: .default, handler: { (action) in
-            if let settingsURL = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!) {
-                UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
-            }
-        }))
-        
-        actionSheet.addAction(UIAlertAction(title: "Thanks, but I'll go to settings later", style: .cancel, handler: { (action) in
-            
-        }))
-        
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow } // handles deprecated warning for multiple screens
-
-        if let window = window {
-            window.rootViewController?.present(actionSheet, animated: true, completion: nil)
-        }
-    }
+//    func presentFailedPermissionActionSheet(description: String) {
+//        // Actionsheet
+//        let actionSheet = UIAlertController(title: nil, message: description, preferredStyle: .actionSheet)
+//
+//        actionSheet.addAction(UIAlertAction(title: "Ok, take me to Settings", style: .default, handler: { (action) in
+//            if let settingsURL = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!) {
+//                UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
+//            }
+//        }))
+//
+//        actionSheet.addAction(UIAlertAction(title: "Thanks, but I'll go to settings later", style: .cancel, handler: { (action) in
+//
+//        }))
+//
+//        let window = UIApplication.shared.windows.first { $0.isKeyWindow } // handles deprecated warning for multiple screens
+//
+//        if let window = window {
+//            window.rootViewController?.present(actionSheet, animated: true, completion: nil)
+//        }
+//    }
 }
