@@ -90,15 +90,6 @@ class ReminderCell: UITableViewCell {
         return touchScreen
     }()
     
-//    func startAnimation() {
-//        UIView.animate(withDuration: 1.8,
-//                       delay: 0,
-//                       options: [.repeat, .autoreverse],
-//                       animations: {
-//                        self.arrowImage.center.x += Constant.arrowOffset
-//        }, completion: nil)
-//    }
-    
     func setupViews() {
         contentView.addSubview(titleInfoField)
         contentView.addSubview(messageInfoField)

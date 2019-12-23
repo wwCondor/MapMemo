@@ -16,14 +16,12 @@ class ActiveRemindersController: UIViewController {
     
     let reminderController = ReminderController()
     
-    var managedObjectContext: NSManagedObjectContext! // MARK: Added - Test
+    var managedObjectContext: NSManagedObjectContext!
     
-    lazy var fetchedResultsController: FetchedResultsController = { // MARK: Added - Test
+    lazy var fetchedResultsController: FetchedResultsController = {
         return FetchedResultsController(managedObjectContext: self.managedObjectContext, tableView: self.activeReminders, request: Reminder.fetchRequest())
     }()
-    
-//    var reminders: [MapMemoStub] = [] // MARK: Test
-    
+        
     let cellId = "cellId"
     
     lazy var activeReminders: UITableView = {
@@ -45,7 +43,6 @@ class ActiveRemindersController: UIViewController {
         
         setupView()
         setupNavigationBar()
-//        addReminders()
     }
     
     private func setupView() {
@@ -63,20 +60,6 @@ class ActiveRemindersController: UIViewController {
         self.navigationController?.navigationBar.backIndicatorTransitionMaskImage = backBarButtonItem
         self.navigationController?.navigationBar.backIndicatorImage = backBarButtonItem
     }
-    
-//    func addReminders() {
-//        reminders.append(MapMemoStub.init(title: "First Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 10, triggerWhenEntering: true, locationId: "LocationId1", isRepeating: false, bubbleColor: BubbleColor.black.string))
-//        reminders.append(MapMemoStub.init(title: "Second Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 20, triggerWhenEntering: false, locationId: "LocationId2", isRepeating: true, bubbleColor: BubbleColor.blue.string))
-//        reminders.append(MapMemoStub.init(title: "Third Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 30, triggerWhenEntering: true, locationId: "LocationId3", isRepeating: false, bubbleColor: BubbleColor.green.string))
-//        reminders.append(MapMemoStub.init(title: "Fourth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 40, triggerWhenEntering: false, locationId: "LocationId4", isRepeating: true, bubbleColor: BubbleColor.red.string))
-//        reminders.append(MapMemoStub.init(title: "Fifth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 50, triggerWhenEntering: true, locationId: "LocationId5", isRepeating: false, bubbleColor: BubbleColor.yellow.string))
-//        reminders.append(MapMemoStub.init(title: "Sixth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 60, triggerWhenEntering: false, locationId: "LocationId6", isRepeating: true, bubbleColor: BubbleColor.black.string))
-//        reminders.append(MapMemoStub.init(title: "Seventh Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 70, triggerWhenEntering: true, locationId: "LocationId7", isRepeating: false, bubbleColor: BubbleColor.blue.string))
-//        reminders.append(MapMemoStub.init(title: "Eigth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 80, triggerWhenEntering: false, locationId: "LocationId8", isRepeating: true, bubbleColor: BubbleColor.green.string))
-//        reminders.append(MapMemoStub.init(title: "Ninth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 90, triggerWhenEntering: true, locationId: "LocationId9", isRepeating: false, bubbleColor: BubbleColor.red.string))
-//        reminders.append(MapMemoStub.init(title: "Tenth Reminder", message: "Some Body", coordinate: Coordinate(longitude: 123.0, lattitude: 456.0), bubbleRadius: 100, triggerWhenEntering: false, locationId: "LocationId0", isRepeating: true, bubbleColor: BubbleColor.yellow.string))
-//        activeReminders.reloadData()
-//    }
 }
 
 extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource {
@@ -145,11 +128,6 @@ extension ActiveRemindersController: UITableViewDelegate, UITableViewDataSource 
         }
         activeReminders.reloadData()
         NotificationCenter.default.post(name: updateRemindersNotificationKey, object: nil)
-
-//        if (editingStyle == .delete) {
-//            reminders.remove(at: indexPath.row)
-//            activeReminders.reloadData()
-//        }
     }
 }
 

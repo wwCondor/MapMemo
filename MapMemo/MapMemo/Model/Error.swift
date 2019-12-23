@@ -33,8 +33,6 @@ enum ReminderError: Error {
     case missingLatitude
     case missingLongitude
     case missingLocationName
-//    case invalidLatitude
-//    case invalidLongitude
     case unableToObtainLocation
     case maxRemindersReached
     case titleIsDuplicate
@@ -51,8 +49,6 @@ extension ReminderError: LocalizedError {
         case .missingLatitude:              return "Woops! You forgot to enter a value for the latitude"
         case .missingLongitude:             return "Woops! You forgot to enter a value for the longitude"
         case .missingLocationName:          return "Woops! The location you entered has no location name"
-//        case .invalidLatitude:              return "Woops! You entered an invalid value for latitude "
-//        case .invalidLongitude:             return "Woops! You entered an invalid value for longitude"
         case .unableToObtainLocation:       return "Unable to obtain a location name for the coordinates you entered"
         case .maxRemindersReached:          return "Maximum active reminders (20) reached. You need to delete a reminder first"
         case .titleIsDuplicate:             return "Unable to save reminder. Reminder title already exists."

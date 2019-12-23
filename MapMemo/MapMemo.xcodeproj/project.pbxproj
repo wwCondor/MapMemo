@@ -20,7 +20,6 @@
 		0BA9CF0C239E501700ACB8E3 /* MapMemo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF0A239E501700ACB8E3 /* MapMemo.xcdatamodeld */; };
 		0BA9CF0E239E501800ACB8E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0BA9CF0D239E501800ACB8E3 /* Assets.xcassets */; };
 		0BA9CF11239E501800ACB8E3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0BA9CF0F239E501800ACB8E3 /* LaunchScreen.storyboard */; };
-		0BA9CF1C239E6BA100ACB8E3 /* MapMemoStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF1B239E6BA100ACB8E3 /* MapMemoStub.swift */; };
 		0BA9CF20239E6E9000ACB8E3 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF1F239E6E8F00ACB8E3 /* Color.swift */; };
 		0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF21239E6E9800ACB8E3 /* Icon.swift */; };
 		0BA9CF26239E719B00ACB8E3 /* ReminderController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */; };
@@ -32,7 +31,6 @@
 		0BA9CF37239FBE0200ACB8E3 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BA9CF36239FBE0200ACB8E3 /* Extension.swift */; };
 		0BC7488523A7CD4700AFB3B5 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC7488423A7CD4700AFB3B5 /* Reachability.swift */; };
 		0BC7488723A80B6C00AFB3B5 /* ReminderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BC7488623A80B6C00AFB3B5 /* ReminderCell.swift */; };
-		0BE3810223ABFD4400342DA5 /* OverlayRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BE3810123ABFD4400342DA5 /* OverlayRenderer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,7 +49,6 @@
 		0BA9CF0D239E501800ACB8E3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0BA9CF10239E501800ACB8E3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0BA9CF12239E501800ACB8E3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0BA9CF1B239E6BA100ACB8E3 /* MapMemoStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapMemoStub.swift; sourceTree = "<group>"; };
 		0BA9CF1F239E6E8F00ACB8E3 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		0BA9CF21239E6E9800ACB8E3 /* Icon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icon.swift; sourceTree = "<group>"; };
 		0BA9CF25239E719B00ACB8E3 /* ReminderController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderController.swift; sourceTree = "<group>"; };
@@ -63,7 +60,6 @@
 		0BA9CF36239FBE0200ACB8E3 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		0BC7488423A7CD4700AFB3B5 /* Reachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		0BC7488623A80B6C00AFB3B5 /* ReminderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderCell.swift; sourceTree = "<group>"; };
-		0BE3810123ABFD4400342DA5 /* OverlayRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayRenderer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,7 +105,6 @@
 				0BA9CF0A239E501700ACB8E3 /* MapMemo.xcdatamodeld */,
 				0B11C08023A5077E00E81DAA /* Reminder+CoreDataClass.swift */,
 				0B11C08123A5077E00E81DAA /* Reminder+CoreDataProperties.swift */,
-				0BA9CF2F239E775C00ACB8E3 /* Delete */,
 			);
 			path = MapMemo;
 			sourceTree = "<group>";
@@ -148,15 +143,6 @@
 				0B11C07823A12D5400E81DAA /* ModeSelected.swift */,
 			);
 			path = Model;
-			sourceTree = "<group>";
-		};
-		0BA9CF2F239E775C00ACB8E3 /* Delete */ = {
-			isa = PBXGroup;
-			children = (
-				0BE3810123ABFD4400342DA5 /* OverlayRenderer.swift */,
-				0BA9CF1B239E6BA100ACB8E3 /* MapMemoStub.swift */,
-			);
-			path = Delete;
 			sourceTree = "<group>";
 		};
 		0BC7488323A7CD2600AFB3B5 /* Networking */ = {
@@ -244,7 +230,6 @@
 				0BA9CF06239E501700ACB8E3 /* MainController.swift in Sources */,
 				0B11C07B23A26A4100E81DAA /* TextInputField.swift in Sources */,
 				0BA9CF20239E6E9000ACB8E3 /* Color.swift in Sources */,
-				0BE3810223ABFD4400342DA5 /* OverlayRenderer.swift in Sources */,
 				0BA9CF28239E71BE00ACB8E3 /* ActiveRemindersController.swift in Sources */,
 				0BA9CF2E239E754B00ACB8E3 /* Constant.swift in Sources */,
 				0BA9CF37239FBE0200ACB8E3 /* Extension.swift in Sources */,
@@ -252,7 +237,6 @@
 				0BA9CF31239ED06900ACB8E3 /* NotificationsManager.swift in Sources */,
 				0B11C07F23A39B1E00E81DAA /* TapToggleView.swift in Sources */,
 				0BA9CF02239E501700ACB8E3 /* AppDelegate.swift in Sources */,
-				0BA9CF1C239E6BA100ACB8E3 /* MapMemoStub.swift in Sources */,
 				0BA9CF22239E6E9800ACB8E3 /* Icon.swift in Sources */,
 				0BA9CF04239E501700ACB8E3 /* SceneDelegate.swift in Sources */,
 				0BC7488723A80B6C00AFB3B5 /* ReminderCell.swift in Sources */,

@@ -61,61 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 locationManager?.stopMonitoring(for: regionToStopMonitoring)
             }
         } else {
-            let content = UNMutableNotificationContent()
-            let triggerCondition = reminder.triggerWhenEntering ? "Entered Region" : "Exited Region"
-            content.title = reminder.title
-            content.body = "\(triggerCondition) \(reminder.locationName): \(reminder.message)"
-            print(content.body)
-            content.sound = UNNotificationSound.default
             
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
-                                                            repeats: false)
-            
-            let identifier = region.identifier // which is reminder.locationName
-            
-            let request = UNNotificationRequest(identifier: identifier,
-                                                content: content,
-                                                trigger: trigger)
-            
-            self.notificationCenter.add(request) { (error) in
-                if error != nil {
-                    if UIApplication.shared.applicationState == .active {
-                        self.presentAlert(description: NotificationError.unableToAddNotificationRequest.localizedDescription)
-                    }
-                }
-            }
         }
-        
-//        notificationCenter.getNotificationSettings { (settings) in
-//            if settings.alertSetting == .enabled {
-////                let content = UNMutableNotificationContent()
-////                content.title = reminder.triggerWhenEntering ? "Entered Region" : "Exited Region"
-////                content.body = "\(reminder.locationName): \(reminder.message)"
-////                content.sound = UNNotificationSound.default
-////
-////                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
-////                                                                repeats: false)
-////
-////                let identifier = region.identifier // which is reminder.locationName
-////
-////                let request = UNNotificationRequest(identifier: identifier,
-////                                                    content: content,
-////                                                    trigger: trigger)
-////
-////                self.notificationCenter.add(request) { (error) in
-////                    if error != nil {
-////                        if UIApplication.shared.applicationState == .active {
-////                            self.presentAlert(description: NotificationError.unableToAddNotificationRequest.localizedDescription)
-////                        }
-////                    }
-////                }
-//            } else {
-//                // If disabled we check if app is active. If it is we inform
-//                if UIApplication.shared.applicationState == .active {
-//                    self.presentFailedPermissionActionSheet(description: NotificationError.alertSettingNotEnabled.localizedDescription)
-//                }
-//            }
-//        }
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {

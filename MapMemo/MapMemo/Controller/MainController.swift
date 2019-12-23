@@ -16,7 +16,6 @@ class MainController: UIViewController {
     
     let updateRemindersNotificationKey = Notification.Name(rawValue: Key.updateReminderNotification)
     
-//    let addReminderController = AddReminderController()
     let reminderController = ReminderController()
     let activeReminderController = ActiveRemindersController()
     let managedObjectContext = (UIApplication.shared.delegate as! AppDelegate).managedObjectContext
@@ -38,9 +37,7 @@ class MainController: UIViewController {
     var locationAuthorized: Bool = false
     var lastLocation: CLLocation?
     
-    let regionInMeters: Double = 5000 // This is how zoomed in the map is around user
-
-//    let notificationManager = NotificationManager.shared
+    let regionInMeters: Double = 3000 // This is how zoomed in the map is around user
     
     lazy var memoMap: MKMapView = {
         let memoMap = MKMapView()
@@ -55,8 +52,6 @@ class MainController: UIViewController {
         let image = UIImage(named: Icon.compassIcon.name)?.withRenderingMode(.alwaysTemplate)
         let compass = UIImageView(image: image)
         compass.translatesAutoresizingMaskIntoConstraints = false
-//        compass.layer.cornerRadius = Constant.compassCornerRadius
-//        compass.layer.masksToBounds = true
         compass.backgroundColor = .clear
         compass.tintColor = UIColor(named: .tintColor)
         compass.alpha = 0.70
@@ -78,9 +73,7 @@ class MainController: UIViewController {
     lazy var addButton: CustomButton = {
         let addButton = CustomButton(type: .custom)
         addButton.alpha = 0.85
-        let image = UIImage(named: Icon.addIcon.name)?.withRenderingMode(.alwaysTemplate)//.alpha(1.0)
-//        addButton.tintColor = ColorSet.tintColor
-//        addButton.backgroundColor?.withAlphaComponent(0.9)
+        let image = UIImage(named: Icon.addIcon.name)?.withRenderingMode(.alwaysTemplate)
         addButton.setImage(image, for: .normal)
         let inset: CGFloat = 15
         addButton.imageEdgeInsets = UIEdgeInsets(top: inset, left: inset, bottom: inset, right: inset)
@@ -103,17 +96,14 @@ class MainController: UIViewController {
         addObserver()
         
         getActiveReminders()
-//        loadReminders(reminders: reminders)
-//        notificationManager.createLocalNotification(notificationInfo: reminders)
-        
-//        fetchedResultsController.delegate = self
+
         memoMap.delegate = self
         
         view.backgroundColor = UIColor(named: .appBackgroundColor)
     
         setupView()
         setupNavigationBar()
-        checkLocationServices() // This calls createReminders Indirectly
+        checkLocationServices() // Calls createReminders Indirectly
     }
     
     private func addObserver() {
@@ -137,33 +127,75 @@ class MainController: UIViewController {
         }
     }
     
+    private func createAnnotation(reminder: Reminder) {
+        let annotation = CustomPointAnnotation()
+        annotation.title = reminder.title
+        annotation.subtitle = reminder.message
+        annotation.pinTintColor = UIColor(named: reminder.bubbleColor)
+        annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
+        memoMap.addAnnotation(annotation)
+    }
+    
+    private func createLocationBubble(reminder: Reminder) {
+        let circle = MKCircle(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+                              radius: reminder.bubbleRadius)
+        memoMap.addOverlay(circle)
+        memoMap.reloadInputViews()
+    }
+    
+    private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
+        let circle = MKCircle(center: coordinate, radius: radius)
+        memoMap.addOverlay(circle)
+        memoMap.reloadInputViews()
+    }
+    
+    private func createNotificationContent(reminder: Reminder) {
+        let content = UNMutableNotificationContent()
+        let triggerCondition = reminder.triggerWhenEntering ? "Entered Region" : "Exited Region"
+        content.title = reminder.title
+        content.body = "\(triggerCondition) \(reminder.locationName): \(reminder.message)"
+        content.sound = UNNotificationSound.default
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
+                                                        repeats: false)
+        
+        let identifier = reminder.locationName
+        
+        let request = UNNotificationRequest(identifier: identifier,
+                                            content: content,
+                                            trigger: trigger)
+        
+        self.notificationCenter.add(request) { (error) in
+            if error != nil {
+                if UIApplication.shared.applicationState == .active {
+                    self.presentAlert(description: NotificationError.unableToAddNotificationRequest.localizedDescription, viewController: self)
+                }
+            }
+        }
+    }
+    
+    private func createGeoFence(reminder: Reminder) {
+        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+                                                   radius: reminder.bubbleRadius,
+                                                   identifier: reminder.locationName)
+        if reminder.triggerWhenEntering == true {
+            circularRegion.notifyOnEntry = true
+            circularRegion.notifyOnExit = false
+        } else if reminder.triggerWhenEntering == false {
+            circularRegion.notifyOnEntry = false
+            circularRegion.notifyOnExit = true
+        }
+        print("Reminder added: \(reminder.title)")
+        locationManager.startMonitoring(for: circularRegion)
+    }
+
     private func createReminders(reminders: [Reminder]) {
         if reminders.count != 0 {
             for reminder in reminders {
-                // Add Annotation for each
-                let annotation = CustomPointAnnotation()
-                annotation.title = reminder.title
-                annotation.subtitle = reminder.message
-                annotation.pinTintColor = UIColor(named: reminder.bubbleColor)
-                annotation.coordinate = CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude)
-                memoMap.addAnnotation(annotation)
-
-                // Add bubble visual
-                addLocationBubble(coordinate: annotation.coordinate, radius: reminder.bubbleRadius, map: memoMap)
-
-                // Add GeoFence to Region
-                let circularRegion = CLCircularRegion.init(center: annotation.coordinate,
-                                                           radius: reminder.bubbleRadius,
-                                                           identifier: reminder.locationName)
-                if reminder.triggerWhenEntering == true {
-                    circularRegion.notifyOnEntry = true
-                    circularRegion.notifyOnExit = false
-                } else if reminder.triggerWhenEntering == false {
-                    circularRegion.notifyOnEntry = false
-                    circularRegion.notifyOnExit = true
-                }
-                print("Reminder added: \(reminder.title)")
-                locationManager.startMonitoring(for: circularRegion)
+                createAnnotation(reminder: reminder)
+                createNotificationContent(reminder: reminder)
+                createGeoFence(reminder: reminder)
+                createLocationBubble(reminder: reminder)
             }
         }
         print("***")
@@ -177,11 +209,7 @@ class MainController: UIViewController {
         print("Removed all delivered and pending notifications")
     }
     
-    private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
-        let circle = MKCircle(center: coordinate, radius: radius)
-        map.addOverlay(circle)
-        map.reloadInputViews()
-    }
+
     
     private func setupView() {
         view.addSubview(memoMap)
@@ -219,8 +247,6 @@ class MainController: UIViewController {
     
     private func setupLocationManager() {
         locationManager.delegate = self
-//        locationManager.requestWhenInUseAuthorization()
-//        locationManager.startUpdatingLocation()
         locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
         locationManager.distanceFilter = 25
     }
@@ -273,16 +299,13 @@ class MainController: UIViewController {
             print("Authorization restricted or denied")
             presentFailedPermissionActionSheet(description: AuthorizationError.locationAuthorizationDenied.localizedDescription , viewController: self)
         case .authorizedAlways, .authorizedWhenInUse:
-            // MARK: Do Map Stuff
             locationAuthorized = true
             print("Authorized")
             memoMap.showsUserLocation = true
             centerMapOnUserLocation()
             locationManager.startUpdatingLocation()
             locationManager.startUpdatingHeading()
-            // MARK: Setup Annotations
-            createReminders(reminders: reminders)
-            break
+            createReminders(reminders: reminders) // Handles the annotations, notification content and geoFence
         @unknown default:
             break
         }
@@ -349,8 +372,6 @@ extension MainController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
         checkLocationAuthorization()
     }
-
-
 }
 
 extension MainController: MKMapViewDelegate {
@@ -377,29 +398,11 @@ extension MainController: MKMapViewDelegate {
     
     // MARK: Handles Bubble Drawing
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-//        let annotations = memoMap.annotations
-//        for annotation in annotations {
-//            let colorName = annotation.description
         let bubble  = MKCircleRenderer(overlay: overlay)
         bubble.strokeColor = UIColor(named: .objectColor)
         bubble.fillColor = UIColor(named: .objectColor)!.withAlphaComponent(0.2)
         bubble.lineWidth = 2
         return bubble
-//        }
-//        if reminders.count != 0 {
-//            for reminder in reminders {
-//                if overlay is MKCircle {
-//                    let circle = MKCircleRenderer(overlay: overlay)
-//                    circle.strokeColor = UIColor(named: reminder.bubbleColor)
-//                    circle.fillColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.2)
-//                    circle.lineWidth = 2
-//                    return circle
-//                } else {
-////                    return MKPolylineRenderer()
-//                }
-//            }
-//        }
-//        return MKPolygonRenderer()
     }
 }
 

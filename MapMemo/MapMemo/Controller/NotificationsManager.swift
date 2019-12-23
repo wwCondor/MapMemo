@@ -10,11 +10,6 @@ import CoreLocation
 import UserNotifications
 
 final class NotificationManager: NSObject {
-
-//    override init() {
-//        super.init()
-//        notificationCenter.delegate = self
-//    }
     
     let notificationCenter = UNUserNotificationCenter.current()
     static let shared = NotificationManager()
