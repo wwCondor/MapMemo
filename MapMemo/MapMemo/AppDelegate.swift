@@ -42,20 +42,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func handleNotification(for region: CLRegion) {
-//    func handleNotification(notificationText: String, didEnter: Bool, for region: CLRegion) {
         guard let reminder = managedObjectContext.fetchReminder(with: region.identifier, context: managedObjectContext) else {
             // We end up here when if we can't fetch reminder
             if UIApplication.shared.applicationState == .active {
                 presentAlert(description: ReminderError.fetchReminder.localizedDescription)
             }
-            print("This did not work")
             return
         }
         
         if UIApplication.shared.applicationState == .active {
             presentAlert(description: "\(reminder.locationName): \(reminder.message)")
             if reminder.isRepeating == false {
-                // In here we want to stop monitoring the reminder
+                // In here we stop monitoring the reminder if user opted to use reminder once
                 let region = locationManager?.monitoredRegions.first { $0.identifier == reminder.locationName }
                 guard let regionToStopMonitoring = region else { return }
                 locationManager?.stopMonitoring(for: regionToStopMonitoring)

@@ -30,7 +30,7 @@ struct PlaceHolderText {
     static let latitude: String           = "Latitude"
     static let longitude: String          = "Longitude"
     static let location: String           = "Search Location"
-    static let bubbleColor: String        = "Bubble Color"
+    static let bubbleColor: String        = "Pin Color"
     static let defaultRadius: String      = "Bubble radius: 50m"
 }
 

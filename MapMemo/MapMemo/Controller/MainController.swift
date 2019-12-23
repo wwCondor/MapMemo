@@ -37,7 +37,7 @@ class MainController: UIViewController {
     var locationAuthorized: Bool = false
     var lastLocation: CLLocation?
     
-    let regionInMeters: Double = 3000 // This is how zoomed in the map is around user
+    let regionInMeters: Double = 2500 // This is how zoomed in the map is around user
     
     lazy var memoMap: MKMapView = {
         let memoMap = MKMapView()
@@ -143,27 +143,26 @@ class MainController: UIViewController {
         memoMap.reloadInputViews()
     }
     
-    private func addLocationBubble(coordinate: CLLocationCoordinate2D, radius: CLLocationDistance, map: MKMapView) {
-        let circle = MKCircle(center: coordinate, radius: radius)
-        memoMap.addOverlay(circle)
-        memoMap.reloadInputViews()
-    }
-    
     private func createNotificationContent(reminder: Reminder) {
         let content = UNMutableNotificationContent()
-        let triggerCondition = reminder.triggerWhenEntering ? "Entered Region" : "Exited Region"
+        let triggerCondition = reminder.triggerWhenEntering ? "Entered" : "Exited"
         content.title = reminder.title
-        content.body = "\(triggerCondition) \(reminder.locationName): \(reminder.message)"
+        content.body = "\(triggerCondition) \(reminder.locationName) Bubble: \(reminder.message)"
         content.sound = UNNotificationSound.default
         
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
-                                                        repeats: false)
+//        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
+//                                                        repeats: false)
+        
+        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+                                                   radius: reminder.bubbleRadius,
+                                                   identifier: reminder.locationName)
+        let locationTrigger = UNLocationNotificationTrigger(region: circularRegion, repeats: reminder.isRepeating)
         
         let identifier = reminder.locationName
         
         let request = UNNotificationRequest(identifier: identifier,
                                             content: content,
-                                            trigger: trigger)
+                                            trigger: locationTrigger)
         
         self.notificationCenter.add(request) { (error) in
             if error != nil {
