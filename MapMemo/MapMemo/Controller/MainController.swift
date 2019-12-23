@@ -143,58 +143,62 @@ class MainController: UIViewController {
         memoMap.reloadInputViews()
     }
     
-    private func createNotificationContent(reminder: Reminder) {
+    private func createNotification(reminder: Reminder) {
+        let region = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+                                                   radius: reminder.bubbleRadius,
+                                                   identifier: reminder.locationName)
+        if reminder.triggerWhenEntering == true {
+            region.notifyOnEntry = true
+            region.notifyOnExit = false
+        } else if reminder.triggerWhenEntering == false {
+            region.notifyOnEntry = false
+            region.notifyOnExit = true
+        }
+        locationManager.startMonitoring(for: region)
+        
+        let identifier = reminder.locationName
         let content = UNMutableNotificationContent()
         let triggerCondition = reminder.triggerWhenEntering ? "Entered" : "Exited"
         content.title = reminder.title
-        content.body = "\(triggerCondition) \(reminder.locationName) Bubble: \(reminder.message)"
+        content.body = "\(triggerCondition) \(reminder.locationName) bubble: \(reminder.message)"
         content.sound = UNNotificationSound.default
-        
-//        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1,
-//                                                        repeats: false)
-        
-        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
-                                                   radius: reminder.bubbleRadius,
-                                                   identifier: reminder.locationName)
-        let locationTrigger = UNLocationNotificationTrigger(region: circularRegion, repeats: reminder.isRepeating)
-        
-        let identifier = reminder.locationName
-        
+        let locationTrigger = UNLocationNotificationTrigger(region: region, repeats: reminder.isRepeating)
         let request = UNNotificationRequest(identifier: identifier,
                                             content: content,
                                             trigger: locationTrigger)
         
-        self.notificationCenter.add(request) { (error) in
+        notificationCenter.add(request) { (error) in
             if error != nil {
                 if UIApplication.shared.applicationState == .active {
                     self.presentAlert(description: NotificationError.unableToAddNotificationRequest.localizedDescription, viewController: self)
                 }
             }
         }
+        print("Reminder added: \(reminder.title)")
     }
     
-    private func createGeoFence(reminder: Reminder) {
-        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
-                                                   radius: reminder.bubbleRadius,
-                                                   identifier: reminder.locationName)
-        if reminder.triggerWhenEntering == true {
-            circularRegion.notifyOnEntry = true
-            circularRegion.notifyOnExit = false
-        } else if reminder.triggerWhenEntering == false {
-            circularRegion.notifyOnEntry = false
-            circularRegion.notifyOnExit = true
-        }
-        print("Reminder added: \(reminder.title)")
-        locationManager.startMonitoring(for: circularRegion)
-    }
+//    private func createGeoFence(reminder: Reminder) {
+//        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
+//                                                   radius: reminder.bubbleRadius,
+//                                                   identifier: reminder.locationName)
+//        if reminder.triggerWhenEntering == true {
+//            circularRegion.notifyOnEntry = true
+//            circularRegion.notifyOnExit = false
+//        } else if reminder.triggerWhenEntering == false {
+//            circularRegion.notifyOnEntry = false
+//            circularRegion.notifyOnExit = true
+//        }
+//        print("Reminder added: \(reminder.title)")
+//        locationManager.startMonitoring(for: circularRegion)
+//    }
 
     private func createReminders(reminders: [Reminder]) {
         if reminders.count != 0 {
             for reminder in reminders {
                 createAnnotation(reminder: reminder)
-                createNotificationContent(reminder: reminder)
-                createGeoFence(reminder: reminder)
                 createLocationBubble(reminder: reminder)
+                createNotification(reminder: reminder)
+//                createGeoFence(reminder: reminder)
             }
         }
         print("***")
@@ -207,8 +211,6 @@ class MainController: UIViewController {
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         print("Removed all delivered and pending notifications")
     }
-    
-
     
     private func setupView() {
         view.addSubview(memoMap)

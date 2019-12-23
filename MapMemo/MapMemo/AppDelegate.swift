@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
             return
         }
-        
+                
         if UIApplication.shared.applicationState == .active {
             presentAlert(description: "\(reminder.locationName): \(reminder.message)")
             if reminder.isRepeating == false {
