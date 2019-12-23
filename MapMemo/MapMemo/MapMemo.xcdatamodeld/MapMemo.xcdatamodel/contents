@@ -5,9 +5,9 @@
         <attribute name="bubbleRadius" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="isActive" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isRepeating" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="latitude" attributeType="Double" defaultValueString="10" usesScalarValueType="YES"/>
+        <attribute name="latitude" attributeType="Double" usesScalarValueType="YES"/>
         <attribute name="locationName" attributeType="String"/>
-        <attribute name="longitude" attributeType="Double" defaultValueString="10" usesScalarValueType="YES"/>
+        <attribute name="longitude" attributeType="Double" usesScalarValueType="YES"/>
         <attribute name="message" attributeType="String" maxValueString="40"/>
         <attribute name="title" attributeType="String" maxValueString="20"/>
         <attribute name="triggerWhenEntering" attributeType="Boolean" usesScalarValueType="YES"/>

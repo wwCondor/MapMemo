@@ -14,7 +14,6 @@ final class NotificationManager: NSObject {
     let notificationCenter = UNUserNotificationCenter.current()
     static let shared = NotificationManager()
 
-    
     var notificationAuthorized: Bool = false
     
     // Request Authorization
@@ -40,7 +39,6 @@ final class NotificationManager: NSObject {
             if settings.authorizationStatus != .authorized {
                 self.notificationAuthorized = false
                 print("Notification authorization declined")
-                // Notifications not allowed
             } else {
                 self.notificationAuthorized = true
                 print("Notification authorization granted")

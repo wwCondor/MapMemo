@@ -13,8 +13,6 @@ class FetchedResultsController: NSFetchedResultsController<Reminder> {
     // Object responsible for performing fetch on the entries
     private let tableView: UITableView 
     
-    
-    
     init(managedObjectContext: NSManagedObjectContext, tableView: UITableView, request: NSFetchRequest<Reminder>) {
         self.tableView = tableView
         super.init(fetchRequest: request, managedObjectContext: managedObjectContext, sectionNameKeyPath: nil, cacheName: nil)
@@ -40,7 +38,7 @@ extension FetchedResultsController: NSFetchedResultsControllerDelegate {
         // The type here is an enum on which we can switch on the type of change that occured
         switch type {
             
-        // If we have an insert operation bu no indexPath we cant do anything, so we return
+        // If we have an insert operation but no indexPath we can't do anything, so we return
         case .insert: guard let newIndexPath = newIndexPath else { return }
         // If we do have an indexPath we can use (In here we can supply an argument for the type of animation we want):
         tableView.insertRows(at: [newIndexPath], with: .automatic)

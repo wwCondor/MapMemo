@@ -219,7 +219,6 @@ class ReminderController: UIViewController {
         setupSearchBar()
     }
     
-    
     private func setupSearchBar() {
         locationSearchBar.translatesAutoresizingMaskIntoConstraints = false
         locationSearchBar.delegate = self
@@ -481,14 +480,14 @@ class ReminderController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
     
-    // MARK: Delete
+    // MARK: Delete method
     @objc private func deleteReminder(sender: UIButton!) {
         print("Reminder Deleted")
         navigationController?.popViewController(animated: true)
         dismiss(animated: true, completion: nil)
     }
     
-    // MARK: Save
+    // MARK: Save method
     @objc private func saveReminder(sender: UIButton!) {
         if modeSelected == .addReminderMode {
             guard let title = titleInputField.text, !title.isEmpty, title != PlaceHolderText.title else {
@@ -528,7 +527,7 @@ class ReminderController: UIViewController {
             reminder.managedObjectContext?.saveChanges()
             NotificationCenter.default.post(name: updateRemindersNotificationKey, object: nil)
             
-            print("Reminder Saved: \(reminder.title)")
+            print("Reminder Saved: \(reminder.title), is active: \(reminder.isActive)")
         } else if modeSelected == .editReminderMode {
             if let reminder = reminder, let newTitle = titleInputField.text, let newMessage = messageInputField.text, let newLatitude = latitudeInputField.text, let newLongitude = longitudeInputField.text, let newLocationName = locationSearchBar.text {
                 reminder.title = newTitle
@@ -633,7 +632,7 @@ extension ReminderController: UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        // Dismiss Keyboard if "return" pressed
+        // Dismiss Keyboard if "return" is tapped
         textField.resignFirstResponder()
         return true
     }
@@ -652,7 +651,7 @@ extension ReminderController: MKLocalSearchCompleterDelegate {
     }
     
     func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-        // MARK: Handle Errors
+//        presentAlert(description: error.localizedDescription, viewController: self)
     }
 }
 

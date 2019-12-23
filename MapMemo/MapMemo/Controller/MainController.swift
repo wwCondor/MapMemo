@@ -158,10 +158,11 @@ class MainController: UIViewController {
         
         let identifier = reminder.locationName
         let content = UNMutableNotificationContent()
-        let triggerCondition = reminder.triggerWhenEntering ? "Entered" : "Exited"
+        let triggerCondition = reminder.triggerWhenEntering ? "Arrived at" : "Leaving"
         content.title = reminder.title
-        content.body = "\(triggerCondition) \(reminder.locationName) bubble: \(reminder.message)"
+        content.body = "\(triggerCondition) \(reminder.locationName): \(reminder.message)"
         content.sound = UNNotificationSound.default
+//        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: reminder.isRepeating) // for testing notification content
         let locationTrigger = UNLocationNotificationTrigger(region: region, repeats: reminder.isRepeating)
         let request = UNNotificationRequest(identifier: identifier,
                                             content: content,
@@ -398,4 +399,3 @@ extension MainController: MKMapViewDelegate {
 class CustomPointAnnotation: MKPointAnnotation {
     var pinTintColor: UIColor?
 }
-

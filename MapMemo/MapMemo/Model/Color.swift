@@ -58,4 +58,3 @@ extension UIColor.Name {
     static let objectBorderColor        = UIColor.Name(name: "ObjectBorderColor")
     static let tintColor                = UIColor.Name(name: "TintColor")
 }
-

@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         locationManager = CLLocationManager()
 //        locationManager!.delegate = self
-        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.delegate = self
         
         let notificationsManager = NotificationManager.shared
@@ -50,18 +50,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     
         if UIApplication.shared.applicationState == .active {
-            let triggerCondition = reminder.triggerWhenEntering ? "Entered" : "Exited"
-            presentAlert(description: "\(triggerCondition) \(reminder.locationName) bubble: \(reminder.message)")
+            let triggerCondition = reminder.triggerWhenEntering ? "Arrived at" : "Leaving"
+            presentAlert(description: "\(triggerCondition) \(reminder.locationName): \(reminder.message)")
         }
-        
-        if reminder.isRepeating == false {
-            // If reminder should not be repeated we disable it, save change and stop monitoring
+        // Disable after trigger when user selected isRepeating == false
+        if reminder.isRepeating != true {
             reminder.isActive = false
             managedObjectContext.saveChanges()
-            let region = locationManager?.monitoredRegions.first { $0.identifier == reminder.locationName }
-            guard let regionToStopMonitoring = region else { return }
-            locationManager?.stopMonitoring(for: regionToStopMonitoring)
+            print("\(reminder.title) is active: \(reminder.isActive)")
         }
+        UIApplication.shared.applicationIconBadgeNumber += 1
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -118,7 +116,7 @@ extension NSManagedObjectContext {
             let reminders = try context.fetch(request)
             return reminders.first
         } catch {
-            // Inform User Reminder could not be retrieved?
+            // Handled at callsite
             print("Could not fetch reminder by location name, error: \(error.localizedDescription)")
             return nil
         }
