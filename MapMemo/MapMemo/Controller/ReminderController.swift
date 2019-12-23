@@ -128,6 +128,21 @@ class ReminderController: UIViewController {
         return repeatToggle
     }()
     
+    lazy var isActiveInfoField: CustomTextField = {
+        let isActiveInfoField = CustomTextField()
+        isActiveInfoField.text = ToggleText.isActive
+        isActiveInfoField.isUserInteractionEnabled = false
+        return isActiveInfoField
+    }()
+    
+    lazy var isActiveToggle: TapToggleView = {
+        let isActiveToggle = TapToggleView()
+        isActiveToggle.isOn = true // default is set to true
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(toggleActiveMode(sender:)))
+        isActiveToggle.addGestureRecognizer(tapGesture)
+        return isActiveToggle
+    }()
+    
     lazy var bubbleColorInfoField: CustomTextField = {
         let bubbleColorInfoField = CustomTextField()
         bubbleColorInfoField.text = PlaceHolderText.bubbleColor
@@ -237,6 +252,14 @@ class ReminderController: UIViewController {
                 repeatOrNotInfoField.text = ToggleText.isNotRepeating
             }
             
+            if reminder.isActive == true {
+                isActiveToggle.isOn = true
+                isActiveInfoField.text = ToggleText.isActive
+            } else if reminder.isActive == false {
+                isActiveToggle.isOn = false
+                isActiveInfoField.text = ToggleText.isNotActive
+            }
+            
             bubbleColorView.backgroundColor = UIColor(named: reminder.bubbleColor)!.withAlphaComponent(0.7)
             bubbleColorView.layer.borderColor = UIColor(named: reminder.bubbleColor)?.cgColor
             bubbleRadiusInfoField.text = "\(reminder.bubbleRadius.clean)m"
@@ -278,6 +301,8 @@ class ReminderController: UIViewController {
         view.addSubview(triggerToggle)
         view.addSubview(repeatOrNotInfoField)
         view.addSubview(repeatToggle)
+        view.addSubview(isActiveInfoField)
+        view.addSubview(isActiveToggle)
         view.addSubview(bubbleColorInfoField)
         view.addSubview(bubbleColorView)
         view.addSubview(colorToggle)
@@ -338,13 +363,25 @@ class ReminderController: UIViewController {
             triggerToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             triggerToggle.bottomAnchor.constraint(equalTo: repeatOrNotInfoField.topAnchor),
 
-            repeatOrNotInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            repeatOrNotInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            repeatOrNotInfoField.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             repeatOrNotInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             repeatOrNotInfoField.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
             
-            repeatToggle.widthAnchor.constraint(equalToConstant: view.bounds.width),
+            repeatToggle.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            repeatToggle.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             repeatToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
             repeatToggle.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
+            
+            isActiveInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            isActiveInfoField.leadingAnchor.constraint(equalTo: repeatToggle.trailingAnchor),
+            isActiveInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            isActiveInfoField.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
+            
+            isActiveToggle.widthAnchor.constraint(equalToConstant: view.bounds.width/2),
+            isActiveToggle.leadingAnchor.constraint(equalTo: repeatToggle.trailingAnchor),
+            isActiveToggle.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
+            isActiveToggle.bottomAnchor.constraint(equalTo: bubbleColorInfoField.topAnchor),
 
             bubbleColorInfoField.widthAnchor.constraint(equalToConstant: view.bounds.width),
             bubbleColorInfoField.heightAnchor.constraint(equalToConstant: Constant.inputFieldSize),
@@ -406,6 +443,16 @@ class ReminderController: UIViewController {
             repeatOrNotInfoField.text = ToggleText.isRepeating
         } else if repeatToggle.isOn == false {
             repeatOrNotInfoField.text = ToggleText.isNotRepeating
+        }
+    }
+    
+    @objc func toggleActiveMode(sender: UITapGestureRecognizer) {
+        view.endEditing(true)
+        isActiveToggle.viewTapped()
+        if isActiveToggle.isOn == true {
+            isActiveInfoField.text = ToggleText.isActive
+        } else if isActiveToggle.isOn == false {
+            isActiveInfoField.text = ToggleText.isNotActive
         }
     }
     
@@ -474,6 +521,7 @@ class ReminderController: UIViewController {
             reminder.locationName = locationName
             reminder.triggerWhenEntering = triggerToggle.isOn
             reminder.isRepeating = repeatToggle.isOn
+            reminder.isActive = isActiveToggle.isOn
             reminder.bubbleColor = bubbleColors[colorSelected]
             reminder.bubbleRadius = Double(radiusInMeters)
             
@@ -491,6 +539,7 @@ class ReminderController: UIViewController {
                 
                 reminder.triggerWhenEntering = triggerToggle.isOn
                 reminder.isRepeating = repeatToggle.isOn
+                reminder.isActive = isActiveToggle.isOn
                 reminder.bubbleColor = bubbleColors[colorSelected]
                 reminder.bubbleRadius = Double(radiusInMeters)
                 

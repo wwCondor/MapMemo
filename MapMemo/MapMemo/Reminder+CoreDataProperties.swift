@@ -29,4 +29,5 @@ extension Reminder {
     @NSManaged public var isRepeating: Bool
     @NSManaged public var bubbleColor: String
     @NSManaged public var bubbleRadius: Double
+    @NSManaged public var isActive: Bool
 }

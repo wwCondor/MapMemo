@@ -176,29 +176,17 @@ class MainController: UIViewController {
         }
         print("Reminder added: \(reminder.title)")
     }
-    
-//    private func createGeoFence(reminder: Reminder) {
-//        let circularRegion = CLCircularRegion.init(center: CLLocationCoordinate2D(latitude: reminder.latitude, longitude: reminder.longitude),
-//                                                   radius: reminder.bubbleRadius,
-//                                                   identifier: reminder.locationName)
-//        if reminder.triggerWhenEntering == true {
-//            circularRegion.notifyOnEntry = true
-//            circularRegion.notifyOnExit = false
-//        } else if reminder.triggerWhenEntering == false {
-//            circularRegion.notifyOnEntry = false
-//            circularRegion.notifyOnExit = true
-//        }
-//        print("Reminder added: \(reminder.title)")
-//        locationManager.startMonitoring(for: circularRegion)
-//    }
 
     private func createReminders(reminders: [Reminder]) {
+        // First we check whether we actually have reminders
         if reminders.count != 0 {
             for reminder in reminders {
-                createAnnotation(reminder: reminder)
-                createLocationBubble(reminder: reminder)
-                createNotification(reminder: reminder)
-//                createGeoFence(reminder: reminder)
+                // We only add the reminders that are toggled as active
+                if reminder.isActive == true {
+                    createAnnotation(reminder: reminder)
+                    createLocationBubble(reminder: reminder)
+                    createNotification(reminder: reminder)
+                }
             }
         }
         print("***")

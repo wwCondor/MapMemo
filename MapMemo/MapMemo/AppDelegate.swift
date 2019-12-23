@@ -26,7 +26,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         notificationCenter.delegate = self
         
         let notificationsManager = NotificationManager.shared
-//        notificationsManager.notificationCenter.delegate = notificationsManager
         notificationsManager.requestNotificationAuthorization()
         
         let navigationBarAppearance = UINavigationBar.appearance()
@@ -43,23 +42,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func handleNotification(for region: CLRegion) {
         guard let reminder = managedObjectContext.fetchReminder(with: region.identifier, context: managedObjectContext) else {
-            // We end up here when if we can't fetch reminder
+            // Check for reminder
             if UIApplication.shared.applicationState == .active {
                 presentAlert(description: ReminderError.fetchReminder.localizedDescription)
             }
             return
         }
-                
+    
         if UIApplication.shared.applicationState == .active {
-            presentAlert(description: "\(reminder.locationName): \(reminder.message)")
-            if reminder.isRepeating == false {
-                // In here we stop monitoring the reminder if user opted to use reminder once
-                let region = locationManager?.monitoredRegions.first { $0.identifier == reminder.locationName }
-                guard let regionToStopMonitoring = region else { return }
-                locationManager?.stopMonitoring(for: regionToStopMonitoring)
-            }
-        } else {
-            
+            let triggerCondition = reminder.triggerWhenEntering ? "Entered" : "Exited"
+            presentAlert(description: "\(triggerCondition) \(reminder.locationName) bubble: \(reminder.message)")
+        }
+        
+        if reminder.isRepeating == false {
+            // If reminder should not be repeated we disable it, save change and stop monitoring
+            reminder.isActive = false
+            managedObjectContext.saveChanges()
+            let region = locationManager?.monitoredRegions.first { $0.identifier == reminder.locationName }
+            guard let regionToStopMonitoring = region else { return }
+            locationManager?.stopMonitoring(for: regionToStopMonitoring)
         }
     }
     
@@ -76,11 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
-    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
-        // Called when the user discards a scene session.
-        // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
-        // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
-    }
+    func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) { }
 
     // MARK: - Core Data stack
     // NSManagedObjectContext: Object used to manipulate and track changes to managed objects.
@@ -131,13 +128,11 @@ extension AppDelegate: CLLocationManagerDelegate {
     // Called when region is entered
     func locationManager(_ manager: CLLocationManager, didEnterRegion region: CLRegion) {
         handleNotification(for: region)
-//        handleNotification(notificationText: "Arrived at: \(region.identifier) region", didEnter: true, for: region)
     }
     
     // Called when region is exited
     func locationManager(_ manager: CLLocationManager, didExitRegion region: CLRegion) {
         handleNotification(for: region)
-//        handleNotification(notificationText: "Left: \(region.identifier) region", didEnter: false, for: region)
     }
 }
 
@@ -173,40 +168,16 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
 extension AppDelegate {
     func presentAlert(description: String) {
-        // Alert
         let alert = UIAlertController(title: nil, message: description, preferredStyle: .alert)
-        
         let confirmation = UIAlertAction(title: "OK", style: .default) {
             (action) in alert.dismiss(animated: true, completion: nil)
         }
         
         alert.addAction(confirmation)
-        
-        let window = UIApplication.shared.windows.first { $0.isKeyWindow } // handles deprecated warning for multiple screens
 
+        let window = UIApplication.shared.windows.first { $0.isKeyWindow } // handles deprecated warning for multiple screens
         if let window = window {
             window.rootViewController?.present(alert, animated: true, completion: nil)
         }
     }
-    
-//    func presentFailedPermissionActionSheet(description: String) {
-//        // Actionsheet
-//        let actionSheet = UIAlertController(title: nil, message: description, preferredStyle: .actionSheet)
-//
-//        actionSheet.addAction(UIAlertAction(title: "Ok, take me to Settings", style: .default, handler: { (action) in
-//            if let settingsURL = URL(string: UIApplication.openSettingsURLString + Bundle.main.bundleIdentifier!) {
-//                UIApplication.shared.open(settingsURL, options: [:], completionHandler: nil)
-//            }
-//        }))
-//
-//        actionSheet.addAction(UIAlertAction(title: "Thanks, but I'll go to settings later", style: .cancel, handler: { (action) in
-//
-//        }))
-//
-//        let window = UIApplication.shared.windows.first { $0.isKeyWindow } // handles deprecated warning for multiple screens
-//
-//        if let window = window {
-//            window.rootViewController?.present(actionSheet, animated: true, completion: nil)
-//        }
-//    }
 }

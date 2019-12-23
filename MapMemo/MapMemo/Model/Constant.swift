@@ -39,6 +39,8 @@ struct ToggleText {
     static let enteringTrigger: String  = "Trigger when entering Bubble"
     static let isRepeating: String      = "Repeat"
     static let isNotRepeating: String   = "Use Once"
+    static let isActive: String         = "Reminder Activated"
+    static let isNotActive: String      = "Reminder Disabled"
 }
 
 struct Key {

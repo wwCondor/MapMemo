@@ -3,6 +3,7 @@
     <entity name="Reminder" representedClassName=".Reminder" syncable="YES">
         <attribute name="bubbleColor" attributeType="String"/>
         <attribute name="bubbleRadius" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="isActive" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isRepeating" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="latitude" attributeType="Double" defaultValueString="10" usesScalarValueType="YES"/>
         <attribute name="locationName" attributeType="String"/>
@@ -12,6 +13,6 @@
         <attribute name="triggerWhenEntering" attributeType="Boolean" usesScalarValueType="YES"/>
     </entity>
     <elements>
-        <element name="Reminder" positionX="-54" positionY="-9" width="128" height="178"/>
+        <element name="Reminder" positionX="-54" positionY="-9" width="128" height="193"/>
     </elements>
 </model>
